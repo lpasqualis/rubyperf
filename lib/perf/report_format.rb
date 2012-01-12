@@ -77,6 +77,7 @@ module Perf
                               :options    => options)
       end
 
+      rep << format_footer(options)
       rep
     end
 
@@ -98,7 +99,6 @@ module Perf
     end
 
     # Override to format the output of the header of the data.
-    # Returns the measure in whatever format the output needs to be.
     #
     # See format_measure
 
@@ -107,12 +107,18 @@ module Perf
     end
 
     # Override to format the output of the header of the data.
-    # Returns the measure in whatever format the output needs to be.
     #
     # See format_measure
 
     def format_title(what,options)
       what
+    end
+
+    # Override to format the output of the footer of the data.
+    #
+    # See format_measure
+
+    def format_footer(options)
     end
 
   end
