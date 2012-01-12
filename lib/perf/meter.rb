@@ -79,7 +79,20 @@ module Perf
         klass.send(:remove_method,method_name)
         klass.send(:alias_method, method_name, "old_#{method_name}")
         klass.send(:remove_method,"old_#{method_name}")
-        @instance_methods.delete(idx)
+        @instance_methods.delete_at(idx)
+      end
+    end
+
+    def restore_all_instance_methods(klass)
+      remove=[]
+      @instance_methods.select {|x| x[:klass]==klass}.each do |im|
+        klass.send(:remove_method,im[:method])
+        klass.send(:alias_method, im[:method], "old_#{im[:method]}")
+        klass.send(:remove_method,"old_#{im[:method]}")
+        remove<<im
+      end
+      remove.each do |r|
+        @instance_methods.delete(r)
       end
     end
 
