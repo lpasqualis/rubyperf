@@ -5,6 +5,9 @@ require "benchmark"
 module Perf
   class Meter
 
+    PATH_MEASURES  = '\blocks'
+    PATH_METHODS   = '\methods'
+
     attr_accessor :measurements
     attr_accessor :current_stack
 
@@ -12,41 +15,24 @@ module Perf
     #
     #
 
-    def initialize(x=nil)
+    def initialize
       @measurements      = {}
-      @current_stack     = ["\\"]
+      @current_stack     = []
       @instance_methods  = []
     end
 
-    def clear
-      initialize
-    end
-
-    ##############################################################################################################
-
-    def get_measurement(what)
-      @measurements[what] ||= {:count      => 0,
+    def get_measurement(path)
+      @measurements[path] ||= {:count      => 0,
                                :time       => Benchmark::Tms.new,
+                               :overhead   => Benchmark::Tms.new,
                                :measuring  => false}
     end
 
-    #
-    # Measures the time taken to execute the block, and adds to "what"
-    #
-    def measure(what,type=nil)
-      res=nil
-      what = "#{what}_#{type}".to_sym if (type)
-      path="#{@current_stack.join("\\")}\\"
+    def measure(what,&code)
+      path="#{PATH_MEASURES}\\#{get_current_path}"
       @current_stack.push what
-      what = "#{path}#{what}"
-      m=get_measurement(what)
-      m[:count] += 1
-      if m[:measuring]
-        res=yield
-      else
-        m[:measuring]  = true
-        m[:time]      += Benchmark.measure { res=yield }
-        m[:measuring]  = false
+      res=measure_full_path(PATH_MEASURES) do
+        measure_full_path("#{path}#{what}",&code)
       end
       @current_stack.pop
       res
@@ -55,14 +41,9 @@ module Perf
     #
     # Measures the time taken to execute the expression, and adds to "what_to_count = expression_result"  
     #
-    def count_value(what_to_count)
-      res  = nil
-      t    = Benchmark.measure { res=yield }
-      path = "#{@current_stack.join("\\")}\\"
-      what = "#{path}#{what_to_count.to_s} = \"#{res.to_s}\""
-      m    = get_measurement(what)
-      m[:time]  += t
-      m[:count] += 1
+    def measure_result(what,&code)
+      res=measure(what,&code)
+      merge_measures(what,"#{what} = \"#{res.to_s}\"")
       res
     end
 
@@ -73,14 +54,19 @@ module Perf
     end
 
     def measure_instance_method(klass,method_name)
-      m=get_measurement("\\#{klass.to_s}\\#{method_name}")
       unless @instance_methods.find{|x| x[:klass]==klass && x[:method]==method_name}
+        klass_path="#{PATH_METHODS}\\#{klass}"
+        m=get_measurement("#{klass_path}\\#{method_name}")
         @instance_methods << {:klass=>klass,:method=>method_name,:perf=>m}
-
+        perf=self
         klass.send(:alias_method, "old_#{method_name}",method_name)
         klass.send(:define_method,method_name) do |*args|
           res=nil
-          t = Benchmark.measure { res=self.send("old_#{method_name}", *args) }
+          t = perf.measure_full_path(PATH_METHODS) do
+                perf.measure_full_path(klass_path) do
+                  Benchmark.measure{ res=self.send("old_#{method_name}", *args) }
+                end
+              end
           m[:time]  += t
           m[:count] += 1
           res
@@ -88,10 +74,59 @@ module Perf
       end
     end
 
+    def restore_instance_method(klass,method_name)
+      if (idx=@instance_methods.find_index{|x| x[:klass]==klass && x[:method]==method_name})
+        klass.send(:remove_method,method_name)
+        klass.send(:alias_method, method_name, "old_#{method_name}")
+        klass.send(:remove_method,"old_#{method_name}")
+        @instance_methods.delete(idx)
+      end
+    end
+
     def measure_class_method(klass,method_name)
     end
 
     def measure_method(klass,method_name)
+    end
+
+    def measure_full_path(path,&code)
+      m=get_measurement(path)
+      m[:count] += 1
+      if m[:measuring]
+        res=yield
+      else
+        res=nil
+        m[:measuring]  = true
+        m[:time]      += Benchmark.measure { res=code.call }
+        m[:measuring]  = false
+      end
+      res
+    end
+
+private
+
+    def set_measurement(path,m)
+      @measurements[path]=m
+    end
+
+    def get_current_path
+      @current_stack.join("\\") + (!@current_stack.empty? ? "\\" : "")
+    end
+
+    def merge_measures(what_from,what_to)
+      measurement_root = "#{PATH_MEASURES}\\#{get_current_path}"
+      path_from        = "#{measurement_root}#{what_from}"
+      path_to          = "#{measurement_root}#{what_to}"
+      m_from = get_measurement(path_from)
+      m_to   = get_measurement(path_to)
+      m_to[:time]       +=  m_from[:time]
+      m_to[:count]      +=  m_from[:count]
+      m_to[:measuring]  ||= m_from[:measuring]
+      clear_measurement(path_from)
+    end
+
+    def clear_measurement(path)
+      @measurements.delete(path)
     end
 
   end

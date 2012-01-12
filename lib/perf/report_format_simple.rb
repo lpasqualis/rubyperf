@@ -48,14 +48,14 @@ module Perf
       super perf,options
     end
 
-    def format_line(v)
+    def format_measure(v)
       percent= v[:percent].is_a?(String) ? v[:percent] : (PERCENT_FORMAT%v[:percent])
       "#{v[:title].ljust(v[:max_title]+EXTRA_SPACES_AFTER_TITLE," ")}: #{percent.rjust(7," ")}% #{v[:count].to_s.rjust(v[:max_count]," ")} #{v[:time].to_s.gsub(/\n/,'')}\n"
     end
 
     def format_title(what,options)
       path=what.split("\\")
-      "#{(path.size>2) ? options[:indent]*(path.size-2) : ""}\\#{path.last}"
+      "#{(path.size-2) ? options[:indent]*(path.size-2) : ""}\\#{path.last}"
     end
 
   end

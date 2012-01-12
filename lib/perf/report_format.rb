@@ -21,18 +21,6 @@ module Perf
       keys_in_order=perf.measurements.keys.sort
       total = Benchmark::Tms.new
 
-      #pos = 0
-      #old_depth=nil
-      #keys_in_orderkeys_in_order.clone.each do |what|
-      #  m=perf.measurements[what]
-      #  depth = what.split("\\").size-1
-      #  if old_depth && old_depth>depth
-      #    keys_in_order.insert(pos,what+"\REMAINING")
-      #  end
-      #  old_depth=depth
-      #  pos+=1
-      #end
-
       perf.measurements.each_pair do |what,m|
         title_len=format_title(what,options).length
         path = what.split("\\")
@@ -40,7 +28,7 @@ module Perf
         max_title = title_len             if title_len>max_title
         max_count = m[:count].to_s.length if m[:count].to_s.length>max_count
 
-        total += m[:time] if path.size==3    # This calculates the max of the level-1 entries needed for the root entry.
+        total += m[:time] if path.size==2    # This calculates the max of the level-1 entries needed for the root entry.
       end
 
       totals=[total.real]
@@ -70,35 +58,25 @@ module Perf
 
       # Root
 
-      rep << format_root(:title      => "\\",               :max_title  => max_title,
-                         :percent    => 100,
-                         :count      => 1,                  :max_count  => max_count,
-                         :time       => total,
-                         :options    => options)
-
       # Split of keys
       keys_in_order.each do |what|
         m=perf.measurements[what]
         title = format_title(what,options)
-        rep << format_line(:title      => title,              :max_title  => max_title,
-                           :percent    => percents[what]||0.0,
-                           :count      => m[:count],          :max_count  => max_count,
-                           :time       => m[:time],
-                           :options    => options)
+        rep << format_measure(:title      => title,              :max_title  => max_title,
+                              :percent    => percents[what]||0.0,
+                              :count      => m[:count],          :max_count  => max_count,
+                              :time       => m[:time],
+                              :options    => options)
       end
 
       rep
     end
 
     def format_header(v)
-      format_line(v)
+      format_measure(v)
     end
 
-    def format_root(v)
-      format_line(v)
-    end
-
-    def format_line(v)
+    def format_measure(v)
       v
     end
 

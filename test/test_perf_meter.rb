@@ -35,7 +35,11 @@ class TestPerfMeter < Test::Unit::TestCase
     a=PerfTestExample.new
     m.measure(:measure_test) { a.test(1,2,3) }
     m.measure(:measure_test_np) { a.test_np }
-
+    m.measure(:some_expressions) do
+      m.measure_result(:expression1) { 1234+12345 }
+      m.measure_result(:expression1) { 1234-123 }
+      m.measure_result(:expression2) { "string" }
+    end
     # Then use the instance method
     m.measure_instance_method(PerfTestExample,:test)
     m.measure_instance_method(PerfTestExample,:test_np)
@@ -48,7 +52,14 @@ class TestPerfMeter < Test::Unit::TestCase
     # Output the results
     rf=Perf::ReportFormatSimple.new
     puts rf.format(m)
-    m.status
+
+    puts "\nRestoring test:\n\n"
+
+    m.restore_instance_method(PerfTestExample,:test)
+    a=PerfTestExample.new
+    a.test(1,2,3)
+    a.test_np
+    puts rf.format(m)
   end
 
   def test_basic
@@ -77,6 +88,8 @@ class TestPerfMeter < Test::Unit::TestCase
             m.measure(:blah3) do
             end
             m.measure(:zzzzblah3) do
+              m.measure_result(:bool) { false }
+              m.measure_result(:bool) { true }
             end
           end
         end
@@ -96,9 +109,9 @@ class TestPerfMeter < Test::Unit::TestCase
     end
     m.measure(:fast) do
     end
-    m.count_value("test") { sleep(1) }
-    m.count_value("test") { false }
-    m.count_value("test") { false }
+    m.measure_result("test") { sleep(1) }
+    m.measure_result("test") { false }
+    m.measure_result("test") { false }
     #return if true
     puts "---- REPORT-----"
     rf=Perf::ReportFormatSimple.new
