@@ -1,6 +1,6 @@
 require 'rubyperf'
 
-# Folrmats the report this way:
+# Foramnts the report this way:
 #
 #measure path                 : percent%  count       user     system      total        real
 #\                            : 100.000%      1   2.540000   0.030000   2.570000 (  4.602187)

@@ -1,15 +1,23 @@
-#
-# Perf::ReportFormat is the base class for all the standard formatting options for a Perf::Meter
-# For each measure it calculates its percentage vale compared to the containing block.
-#
 
 module Perf
+
+  #
+  # Base class for all the standard formatting options for a Perf::Meter. Provies a simple interface to create
+  # custom views of the performance report.
+  #
   class ReportFormat
 
     MIN_TOTAL_TIME = 1.0e-10
 
     # Format takes a Perf::Meter plus a hash of options and converts it into a header, followed by a series
     # of entries in a hash format that can be easily converted in any other format such as Text, HTML, XML, etc.
+    #
+    # You call this method every time that you want to generate a report from a Perf::Meter object.
+    #
+    # ==== Options
+    #
+    # * +:max_count_len+  : Maximum expected length of a block/espresson/method count.
+    #
 
     def format(perf,options={})
       options[:max_count_len] ||= 6
@@ -72,13 +80,36 @@ module Perf
       rep
     end
 
-    def format_header(v)
-      format_measure(v)
-    end
+    # Override to format the output of a single measure. Returns the measure in whatever format the output needs to be.
+    #
+    # ==== Options
+    #
+    # * +v+  : Hash containing the following keys:
+    #           +title+      : Title - or path - of the block/method/expression (\root\a\b\c\d\something))
+    #           +max_title+  : Longest title in the report
+    #           +percent+    : Percentage of time spent in this measure compared to the containing block.
+    #           +count+      : How many times the block/method/exression was executed
+    #           +time+       : Execution time expressed as a Benchmark::Tms value; For titles this is Benchmark::Tms::CAPTION
+    #           +options+    : Formatting options, as passed by the framework or the user.
+    #
 
     def format_measure(v)
       v
     end
+
+    # Override to format the output of the header of the data.
+    # Returns the measure in whatever format the output needs to be.
+    #
+    # See format_measure
+
+    def format_header(v)
+      format_measure(v)
+    end
+
+    # Override to format the output of the header of the data.
+    # Returns the measure in whatever format the output needs to be.
+    #
+    # See format_measure
 
     def format_title(what,options)
       what

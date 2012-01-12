@@ -26,6 +26,10 @@ class TestPerfMeter < Test::Unit::TestCase
     def test_np
       (0..300000).to_a.reverse.reverse.reverse # Do something heavy
     end
+
+    def self.static_method
+      (0..300000).to_a.reverse.reverse.reverse # Do something heavy
+    end
   end
 
   def test_measure_instance_method
@@ -44,10 +48,12 @@ class TestPerfMeter < Test::Unit::TestCase
     m.measure_instance_method(PerfTestExample,:test)
     m.measure_instance_method(PerfTestExample,:test_np)
     m.measure_instance_method(PerfTestExample,:test)     # Do it twice and see what happens
+    m.measure_class_method(PerfTestExample,:static_method)
 
     a=PerfTestExample.new
     a.test(1,2,3)
     a.test_np
+    PerfTestExample.static_method
 
     # Output the results
     rf=Perf::ReportFormatSimple.new
