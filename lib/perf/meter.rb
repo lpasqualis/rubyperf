@@ -15,6 +15,7 @@ module Perf
     def initialize(x=nil)
       @measurements      = {}
       @current_stack     = ["\\"]
+      @instance_methods  = []
     end
 
     def clear
@@ -63,6 +64,34 @@ module Perf
       m[:time]  += t
       m[:count] += 1
       res
+    end
+
+    def status
+      @measurements.keys.sort.each do |what|
+        puts what.to_s
+      end
+    end
+
+    def measure_instance_method(klass,method_name)
+      m=get_measurement("\\#{klass.to_s}\\#{method_name}")
+      unless @instance_methods.find{|x| x[:klass]==klass && x[:method]==method_name}
+        @instance_methods << {:klass=>klass,:method=>method_name,:perf=>m}
+
+        klass.send(:alias_method, "old_#{method_name}",method_name)
+        klass.send(:define_method,method_name) do |*args|
+          res=nil
+          t = Benchmark.measure { res=self.send("old_#{method_name}", *args) }
+          m[:time]  += t
+          m[:count] += 1
+          res
+        end
+      end
+    end
+
+    def measure_class_method(klass,method_name)
+    end
+
+    def measure_method(klass,method_name)
     end
 
   end

@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "rubyperf"
   gem.homepage = "http://github.com/lpasqualis/rubyperf"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{A gem to measure ruby code performance}
+  gem.description = %Q{Measures the performance of blocks of code, and provide reporting in various formats}
   gem.email = "lpasqualis@gmail.com"
   gem.authors = ["lpasqualis"]
   # dependencies defined in Gemfile

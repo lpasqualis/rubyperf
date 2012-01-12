@@ -19,24 +19,33 @@ class TestPerfMeter < Test::Unit::TestCase
   end
 
   class PerfTestExample
-    def test(a)
-      sleep(a)
-      puts "Hello #{a}"
+    def test(a,b,c)
+      (0..100000).to_a.reverse.reverse.reverse # Do something heavy
     end
 
     def test_np
-      sleep(1)
-      puts "test_np"
+      (0..300000).to_a.reverse.reverse.reverse # Do something heavy
     end
   end
 
-  def test_methods
+  def test_measure_instance_method
+    # First test it with measure
     m=Perf::Meter.new
+
+    a=PerfTestExample.new
+    m.measure(:measure_test) { a.test(1,2,3) }
+    m.measure(:measure_test_np) { a.test_np }
+
+    # Then use the instance method
     m.measure_instance_method(PerfTestExample,:test)
     m.measure_instance_method(PerfTestExample,:test_np)
+    m.measure_instance_method(PerfTestExample,:test)     # Do it twice and see what happens
+
     a=PerfTestExample.new
-    a.test(1)
+    a.test(1,2,3)
     a.test_np
+
+    # Output the results
     rf=Perf::ReportFormatSimple.new
     puts rf.format(m)
     m.status

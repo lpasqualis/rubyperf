@@ -49,7 +49,7 @@ module Perf
 
     def initialize(logger = Logger.new(STDOUT))
       @m      = {}
-      @stack  = ["\\"]
+      @stack  = []
       @logger = logger
     end
 
@@ -103,13 +103,16 @@ module Perf
                     :measuring  => false}
     end
 
+    def get_current_path
+      "#{@stack.join("\\")}\\"
+    end
     #
     # Measures the time taken to execute the block, and adds to "what"
     #
     def measure(what,type=nil)
       res=nil
       what = "#{what}_#{type}".to_sym if (type)
-      path="#{@stack.join("\\")}\\"
+      path=get_current_path
       @stack.push what
       what = "#{path}#{what}"
       m=get_measure(what)
@@ -132,7 +135,7 @@ module Perf
     def count_value(what_to_count)
       res=nil
       t = Benchmark.measure { res=yield }
-      path="#{@stack.join("\\")}\\"
+      path=get_current_path
       what = "#{path}#{what_to_count.to_s} = \"#{res.to_s}\""
       m=get_measure(what)
       m[:time] += t

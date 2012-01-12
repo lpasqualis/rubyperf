@@ -1,4 +1,5 @@
-require "report_format"
+require 'rubyperf'
+
 # Folrmats the report this way:
 #
 #measure path                 : percent%  count       user     system      total        real

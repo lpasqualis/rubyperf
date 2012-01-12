@@ -1,0 +1,5 @@
+require 'perf/meter'
+require 'perf/meter_factory'
+require 'perf/no_op_meter'
+require 'perf/report_format'
+require 'perf/report_format_simple'
