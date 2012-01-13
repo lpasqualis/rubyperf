@@ -44,34 +44,53 @@ class TestPerfMeter < Test::Unit::TestCase
       m.measure_result(:expression2) { "string" }
     end
     # Then use the instance method
-    #m.measure_instance_method(PerfTestExample,:test)
-    #m.measure_instance_method(PerfTestExample,:test_np)
-    #m.measure_instance_method(PerfTestExample,:test)     # Do it twice and see what happens
-    #m.measure_class_method(PerfTestExample,:static_method)
-    #a=PerfTestExample.new
-    #a.test(1,2,3)
-    #a.test_np
-    #PerfTestExample.static_method
-    m
+    m.method_meters(PerfTestExample,[:test,:test_np],[:static_method]) do
+      a=PerfTestExample.new
+      a.test(1,2,3)
+      a.test_np
+      PerfTestExample.static_method
+    end
+  end
+
+  def test_method_meters
+    m=Perf::Meter.new
+    c=PerfTestExample.new
+    m.method_meters(PerfTestExample,[:test,:test_np],[:static_method]) do
+      a=PerfTestExample.new
+      a.test(1,2,3)
+      a.test_np
+      PerfTestExample.static_method
+    end
+    puts PerfTestExample.methods.join("\n")
+  end
+
+  def test_method_metering
+    m=Perf::Meter.new
+    m.method_meters(PerfTestExample,[:test,:test_np],[:static_method]) do
+      a=PerfTestExample.new
+      a.test(1,2,3)
+      a.test_np
+      PerfTestExample.static_method
+    end
+    puts m.report_simple
   end
 
   def test_output_html
-    # First test it with measure
     m=get_measure
     puts m.report_html
-    m.restore_all_methods(PerfTestExample)
   end
 
   def test_exception_handling
-    # First test it with measure
-    exception_raised=false
-    measuring_correct=false
-    stack_correct=false
+    # An exeption thwon in a block that we are measuring needs to leave the Perf::Meter in a good state.
+    # This test checks the state after an exception.
+    exception_raised  = false
+    measuring_correct = false
+    stack_correct     = false
     m=Perf::Meter.new
 
     begin
       m.measure(:some_exception) do
-        a=12/0
+        a=12/0   # Divide by zero
       end
     rescue
       exception_raised=true
@@ -88,8 +107,6 @@ class TestPerfMeter < Test::Unit::TestCase
   end
 
   def test_return_values
-    # First test it with measure
-
     m=Perf::Meter.new
 
     assert_equal 4,m.measure(:four) {4}
@@ -97,13 +114,9 @@ class TestPerfMeter < Test::Unit::TestCase
 
     assert_equal 5,m.measure_result(:five) {5}
     assert_equal "byebye",m.measure_result(:byebye) {"bye"+"bye"}
-
-    puts m.report_simple
   end
 
   def test_nesting_measure
-    # First test it with measure
-
     m=Perf::Meter.new
     m.measure(:a) { }
     m.measure(:b) { }
@@ -141,7 +154,7 @@ class TestPerfMeter < Test::Unit::TestCase
     PerfTestExample.static_method
 
     # Output the results
-    puts m.report_simple(m)
+    #puts m.report_simple(m)
 
     puts "\nRestoring test:\n\n"
 
@@ -149,13 +162,13 @@ class TestPerfMeter < Test::Unit::TestCase
     a=PerfTestExample.new
     a.test(1,2,3)
     a.test_np
-    puts m.report_simple
+    #puts m.report_simple
 
     m.restore_all_instance_methods(PerfTestExample)
     a=PerfTestExample.new
     a.test(1,2,3)
     a.test_np
-    puts puts m.report_simple
+    #puts puts m.report_simple
     m.restore_all_methods(PerfTestExample)
   end
 

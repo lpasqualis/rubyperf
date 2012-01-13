@@ -113,6 +113,19 @@ module Perf
       res
     end
 
+    def method_meters(klass,imethods=[],cmethods=[])
+      res=nil
+      begin
+        imethods.each {|m| measure_instance_method(klass,m) }
+        cmethods.each {|m| measure_class_method(klass,m) }
+        res=yield
+      ensure
+        imethods.each {|m| restore_instance_method(klass,m) }
+        cmethods.each {|m| restore_class_method(klass,m) }
+      end
+      res
+    end
+
     # Puts a wrapper around instance methods of a specific class to measure their performance
     # Remember to use restore_instance_method when you are done, otherwise the method will stay instrumented.
     #
@@ -217,7 +230,7 @@ module Perf
       m=get_measurement(path)
       m[:count] += 1
       if m[:measuring]
-        res=yield
+        res=code.call
       else
         res=nil
         m[:measuring]  = true
@@ -259,23 +272,23 @@ private
     def get_measurement(path)
       @measurements[path] ||= {:count      => 0,
                                :time       => Benchmark::Tms.new,
-                               :overhead   => Benchmark::Tms.new,
                                :measuring  => false}
     end
 
     def measure_method_by_type(klass,method_name,type)
       unless @instrumented_methods[type].find{|x| x[:klass]==klass && x[:method]==method_name}
         klass_path="#{PATH_METHODS}\\#{klass}"
-        m=get_measurement("#{klass_path}\\#{method_name}")
-        @instrumented_methods[type]<< {:klass=>klass,:method=>method_name,:perf=>m}
+        m = get_measurement("#{klass_path}\\#{method_name}")
+        old_method_symbol="rubyperf_org_#{method_name}".to_sym
+        @instrumented_methods[type] << { :klass=>klass, :method=>method_name, :perf=>m, :org=>old_method_symbol }
         perf=self
-        klass.send(:alias_method, "old_#{method_name}",method_name)
+        klass.send(:alias_method, old_method_symbol,method_name)
         klass.send(:define_method,method_name) do |*args|
           res=nil
           m[:count] += 1
           t = perf.measure_full_path(PATH_METHODS) do
                 perf.measure_full_path(klass_path) do
-                  Benchmark.measure{ res=self.send("old_#{method_name}", *args) }
+                  Benchmark.measure{ res=self.send(old_method_symbol, *args) }
                 end
               end
           m[:time]  += t
@@ -288,11 +301,11 @@ private
     # See measure_instance_method for more information.
 
     def restore_method_by_type(klass,method_name,type)
-      if (idx=@instrumented_methods[type].find_index{|x| x[:klass]==klass && x[:method]==method_name})
-        klass.send(:remove_method,method_name)
-        klass.send(:alias_method, method_name, "old_#{method_name}")
-        klass.send(:remove_method,"old_#{method_name}")
-        @instrumented_methods[type].delete_at(idx)
+      if (im=@instrumented_methods[type].find{|x| x[:klass]==klass && x[:method]==method_name})
+        klass.send(:remove_method,im[:method])
+        klass.send(:alias_method, im[:method], im[:org])
+        klass.send(:remove_method,im[:org])
+        @instrumented_methods[type].delete(im)
       end
     end
 
@@ -303,12 +316,12 @@ private
       remove=[]
       @instrumented_methods[type].select {|x| x[:klass]==klass}.each do |im|
         klass.send(:remove_method,im[:method])
-        klass.send(:alias_method, im[:method], "old_#{im[:method]}")
-        klass.send(:remove_method,"old_#{im[:method]}")
+        klass.send(:alias_method, im[:method], im[:org])
+        klass.send(:remove_method,im[:org])
         remove<<im
       end
-      remove.each do |r|
-        @instrumented_methods[type].delete(r)
+      remove.each do |im|
+        @instrumented_methods[type].delete(im)
       end
     end
 
