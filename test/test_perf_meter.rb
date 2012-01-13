@@ -44,23 +44,77 @@ class TestPerfMeter < Test::Unit::TestCase
       m.measure_result(:expression2) { "string" }
     end
     # Then use the instance method
-    m.measure_instance_method(PerfTestExample,:test)
-    m.measure_instance_method(PerfTestExample,:test_np)
-    m.measure_instance_method(PerfTestExample,:test)     # Do it twice and see what happens
-    m.measure_class_method(PerfTestExample,:static_method)
-    a=PerfTestExample.new
-    a.test(1,2,3)
-    a.test_np
-    PerfTestExample.static_method
+    #m.measure_instance_method(PerfTestExample,:test)
+    #m.measure_instance_method(PerfTestExample,:test_np)
+    #m.measure_instance_method(PerfTestExample,:test)     # Do it twice and see what happens
+    #m.measure_class_method(PerfTestExample,:static_method)
+    #a=PerfTestExample.new
+    #a.test(1,2,3)
+    #a.test_np
+    #PerfTestExample.static_method
     m
   end
 
   def test_output_html
     # First test it with measure
     m=get_measure
-    rf=Perf::ReportFormatHtml.new
-    puts rf.format(m)
+    puts m.report_html
     m.restore_all_methods(PerfTestExample)
+  end
+
+  def test_exception_handling
+    # First test it with measure
+    exception_raised=false
+    measuring_correct=false
+    stack_correct=false
+    m=Perf::Meter.new
+
+    begin
+      m.measure(:some_exception) do
+        a=12/0
+      end
+    rescue
+      exception_raised=true
+    ensure
+      measuring_correct=true
+      m.measurements.each_pair do |_,x|
+        measuring_correct=false if x[:measuring]
+      end
+      stack_correct = (m.current_stack.size==0)
+    end
+    assert exception_raised
+    assert measuring_correct
+    assert stack_correct
+  end
+
+  def test_return_values
+    # First test it with measure
+
+    m=Perf::Meter.new
+
+    assert_equal 4,m.measure(:four) {4}
+    assert_equal "hello",m.measure(:hello) {"hel"+"lo"}
+
+    assert_equal 5,m.measure_result(:five) {5}
+    assert_equal "byebye",m.measure_result(:byebye) {"bye"+"bye"}
+
+    puts m.report_simple
+  end
+
+  def test_nesting_measure
+    # First test it with measure
+
+    m=Perf::Meter.new
+    m.measure(:a) { }
+    m.measure(:b) { }
+    m.measure(:d) { m.measure(:c) { m.measure(:d) {} }}
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\d\\c\\d"]
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\d\\c"]
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\d"]
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\b"]
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\a"]
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}"]
+    assert_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\huh"]
   end
 
   def test_measure_instance_method
@@ -87,8 +141,7 @@ class TestPerfMeter < Test::Unit::TestCase
     PerfTestExample.static_method
 
     # Output the results
-    rf=Perf::ReportFormatSimple.new
-    puts rf.format(m)
+    puts m.report_simple(m)
 
     puts "\nRestoring test:\n\n"
 
@@ -96,13 +149,13 @@ class TestPerfMeter < Test::Unit::TestCase
     a=PerfTestExample.new
     a.test(1,2,3)
     a.test_np
-    puts rf.format(m)
+    puts m.report_simple
 
     m.restore_all_instance_methods(PerfTestExample)
     a=PerfTestExample.new
     a.test(1,2,3)
     a.test_np
-    puts rf.format(m)
+    puts puts m.report_simple
     m.restore_all_methods(PerfTestExample)
   end
 
@@ -156,7 +209,6 @@ class TestPerfMeter < Test::Unit::TestCase
     m.measure_result("test") { sleep(1) }
     m.measure_result("test") { false }
     m.measure_result("test") { false }
-    rf=Perf::ReportFormatSimple.new
-    puts rf.format(m)
+    puts m.report_simple
   end
 end

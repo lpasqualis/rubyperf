@@ -76,10 +76,13 @@ module Perf
     def measure(what,&code)
       path="#{PATH_MEASURES}\\#{get_current_path}"
       @current_stack.push what
-      res=measure_full_path(PATH_MEASURES) do
-        measure_full_path("#{path}#{what}",&code)
+      begin
+        res=measure_full_path(PATH_MEASURES) do
+          measure_full_path("#{path}#{what}",&code)
+        end
+      ensure
+        @current_stack.pop
       end
-      @current_stack.pop
       res
     end
 
@@ -218,8 +221,11 @@ module Perf
       else
         res=nil
         m[:measuring]  = true
-        m[:time]      += Benchmark.measure { res=code.call }
-        m[:measuring]  = false
+        begin
+          m[:time]      += Benchmark.measure { res=code.call }
+        ensure
+          m[:measuring]  = false
+        end
       end
       res
     end
@@ -266,13 +272,13 @@ private
         klass.send(:alias_method, "old_#{method_name}",method_name)
         klass.send(:define_method,method_name) do |*args|
           res=nil
+          m[:count] += 1
           t = perf.measure_full_path(PATH_METHODS) do
                 perf.measure_full_path(klass_path) do
                   Benchmark.measure{ res=self.send("old_#{method_name}", *args) }
                 end
               end
           m[:time]  += t
-          m[:count] += 1
           res
         end
       end
@@ -304,6 +310,29 @@ private
       remove.each do |r|
         @instrumented_methods[type].delete(r)
       end
+    end
+
+    # You can generate a report using one of the built-in report formats with a simple syntax shortcut
+    #
+    #    m=Perf::Meter.new
+    #    m.report_FORMAT
+    #
+    # Where FORMAT is the ending part of one of the ReportFormatFORMAT classes built in.
+    #
+    # ==== Examples
+    #
+    # m=Perf::Meter.new
+    # m.measure(:something) {something}
+    # puts m.report_html
+    # puts m.report_simple
+    #
+
+    def method_missing(method_sym, *arguments, &block)
+      if method_sym.to_s =~ /^report_(.*)$/
+        klass=Object.const_get("Perf").const_get("ReportFormat#{$1.capitalize}")
+        return klass.new.format(self) if klass
+      end
+      super
     end
   end
 end

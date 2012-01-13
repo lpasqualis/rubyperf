@@ -119,6 +119,7 @@ module Perf
     # See format_measure
 
     def format_footer(options)
+      ""
     end
 
   end
