@@ -223,8 +223,5 @@ class TestPerfMeter < Test::Unit::TestCase
       Array.new(1000000,"abc").reverse.sort
     end
 
-    puts m.report_simple
-    puts m.report_html
-
   end
 end
