@@ -1,16 +1,16 @@
 #
-# Copyright (c) 2012 Lorenzo Pasqualis - DreamBox Learning, Inc
+#Copyright (c) 2012 Lorenzo Pasqualis - DreamBox Learning, Inc
 #
-# Project home-page git repository:
+#Project home-page git repository:
 #    https://github.com/lpasqualis/rubyperf
 #
-# Author can be contacted at:
+#Author can be contacted at:
 #    lpasqualis@gmail.com
 #
-# Author's Blog:
+#Author's Blog:
 #    http://www.lorenzopasqualis.com
 #
-# License:
+#License:
 #
 #  Permission is hereby granted, free of charge, to any person obtaining
 #  a copy of this software and associated documentation files (the
@@ -33,16 +33,16 @@
 #
 #############################################################################
 #
-# This gem measures the execution time of blocks of code, methods and expressions.
-# It generates detailed reports in various formats showing the nested structure
-# of the measures.
+#This gem measures the execution time of blocks of code, methods and expressions.
+#It generates detailed reports in various formats showing the nested structure
+#of the measures.
 #
-# Designed to give tools to drill in the performance of hot code and identify
-# bottlenecks.
+#Designed to give tools to drill in the performance of hot code and identify
+#bottlenecks.
 #
-# Currently available output formats for the report: text, html.
+#Currently available output formats for the report: text, html.
 #
-# Example of use:
+#Example of use:
 #
 #    require 'rubyperf'
 #

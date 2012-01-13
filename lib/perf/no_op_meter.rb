@@ -5,8 +5,8 @@
 
 module Perf
   #
-  # This class can be used in substitution to a Perf::Measure class to avoid overhead when performance measurments is not
-  # required. It needs to maintain the same API as Perf::Measure.
+  # This class can be used in substitution to a Perf::Meter class to avoid overhead when performance measurements is not
+  # required. It needs to maintain the same API as Perf::Meter.
   #
   class NoOpMeter
 
@@ -18,20 +18,41 @@ module Perf
 
     #############################################################################################################
 
-    def measure(what,type=nil)
+    def measure(what,&code)
       yield
     end
 
-    def count_value(what_to_count)
-      nil
+    def  measure_result(what,&code)
+      yield
     end
 
-    def report_arr(options={})
-      []
+    def method_meters(klass,imethods=[],cmethods=[])
+      yield
     end
 
-    def report(options={})
-      true
+    def measure_instance_method(klass,method_name)
+    end
+
+    def measure_instance_method(klass,method_name)
+    end
+
+    def restore_all_instance_methods(klass)
+    end
+
+    def measure_class_method(klass,method_name)
+    end
+
+    def restore_class_method(klass,method_name)
+    end
+
+    def restore_all_class_methods(klass)
+    end
+
+    def restore_all_methods(klass)
+    end
+
+    def measure_full_path(path,&code)
+      yield
     end
 
   end
