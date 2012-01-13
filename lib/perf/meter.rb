@@ -113,6 +113,33 @@ module Perf
       res
     end
 
+    # Puts a wrapper around a set of methods of a specific class to measure their performance.
+    # The set is provided with an array of iinstance methods, and one of class methods.
+    #
+    # The method defines the wrapper, yelds to the block, and then restores the instrumented class.
+    # This ensures that the instrumented class is restored, and that the instrumentation occurs only in the context
+    # of the block
+    #
+    # ==== Attributes
+    #
+    # * +klass+ - The Class containing the instance method that you want to measure
+    # * +imethods+ - An array of instance methods that you want to measure
+    # * +cmethods+ - An array of class methods that you want to measure
+    #
+    # ==== Examples
+    #
+    #    perf = Perf::Meter.new
+    #    m.method_meters(PerfTestExample,[:test,:test_np],[:static_method]) do
+    #      a=PerfTestExample.new
+    #      a.test(1,2,3)
+    #      a.test_np
+    #      PerfTestExample.static_method
+    #    end
+    #
+    # After this m contains measures for the executions of the instance methods test, test_np and the class
+    # methods static_method
+    #
+
     def method_meters(klass,imethods=[],cmethods=[])
       res=nil
       begin
