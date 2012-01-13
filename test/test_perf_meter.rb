@@ -1,7 +1,11 @@
 require "test/unit"
 
 require 'helper'
+
 require 'rubyperf'
+
+require 'rubyperf_test_helpers'
+require 'perf_test_example'
 
 class TestPerfMeter < Test::Unit::TestCase
 
@@ -16,41 +20,6 @@ class TestPerfMeter < Test::Unit::TestCase
 
   def teardown
     # Do nothing
-  end
-
-  class PerfTestExample
-    def test(a,b,c)
-      (0..100000).to_a.reverse.reverse.reverse # Do something heavy
-    end
-
-    def test_np
-      (0..300000).to_a.reverse.reverse.reverse # Do something heavy
-    end
-
-    def self.static_method
-      (0..300000).to_a.reverse.reverse.reverse # Do something heavy
-    end
-  end
-
-  def get_measure
-    m=Perf::Meter.new
-
-    a=PerfTestExample.new
-    m.measure(:measure_test) { a.test(1,2,3) }
-    m.measure(:measure_test_np) { a.test_np }
-    m.measure(:some_expressions) do
-      m.measure_result(:expression1) { 1234+12345 }
-      m.measure_result(:expression1) { 1234-123 }
-      m.measure_result(:expression2) { "string" }
-    end
-    # Then use the instance method
-    m.method_meters(PerfTestExample,[:test,:test_np],[:static_method]) do
-      a=PerfTestExample.new
-      a.test(1,2,3)
-      a.test_np
-      PerfTestExample.static_method
-    end
-    m
   end
 
   def test_method_not_corrupted_after_restoring
@@ -75,12 +44,31 @@ class TestPerfMeter < Test::Unit::TestCase
       a.test_np
       PerfTestExample.static_method
     end
-    puts m.report_simple
+    m.report_simple
+  end
+
+  def test_base_report
+    m=Perf::Meter.new
+    m.measure(:a) { }
+    m.measure(:b) { }
+    m.measure(:d) { m.measure(:c) { m.measure(:d) {} }}
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\d\\c\\d"]
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\d\\c"]
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\d"]
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\b"]
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\a"]
+    assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}"]
+    assert_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\huh"]
+    assert RubyperfTestHelpers.verify_report(m,["#{Perf::Meter::PATH_MEASURES}\\d\\c\\d",
+                                                "#{Perf::Meter::PATH_MEASURES}\\d\\c",
+                                                "#{Perf::Meter::PATH_MEASURES}\\d",
+                                                "#{Perf::Meter::PATH_MEASURES}\\b",
+                                                "#{Perf::Meter::PATH_MEASURES}"])
   end
 
   def test_output_html
-    m=get_measure
-    puts m.report_html
+    m=RubyperfTestHelpers.get_measure
+    m.report_html
   end
 
   def test_exception_handling
@@ -159,7 +147,7 @@ class TestPerfMeter < Test::Unit::TestCase
     # Output the results
     #puts m.report_simple(m)
 
-    puts "\nRestoring test:\n\n"
+    #puts "\nRestoring test:\n\n"
 
     m.restore_instance_method(PerfTestExample,:test)
     a=PerfTestExample.new
@@ -178,53 +166,60 @@ class TestPerfMeter < Test::Unit::TestCase
   def test_basic
     m=Perf::Meter.new
     m.measure(:string_operations) do
-      m.measure(:ciao1000) do
-        10000.times do; "CIAO"*1000; end
+      m.measure(:ciao) do
+        1000.times do; "CIAO"*100; end
       end
     end
     m.measure(:string_operations) do
-      m.measure(:help1000) do
-        10000.times do; "HELP"*1000; end
+      m.measure(:help) do
+        1000.times do; "HELP"*100; end
       end
     end
     m.measure(:emtpy_loop) do
       50000.times do; end;
     end
-    m.measure(:measure_overhead_x10000) do
+    m.measure(:rough_overhead_x10000) do
       1000.times do
-        m.measure(:nothing1) do
-          m.measure(:blah2) do
+        m.measure(:block_1) do
+          m.measure(:block_1_1) do
           end
-          m.measure(:nothing2) do
-            m.measure(:nothing3) do
+          m.measure(:block_1_2) do
+            m.measure(:block_1_2_1) do
             end
-            m.measure(:blah3) do
+            m.measure(:block_1_2_2) do
             end
-            m.measure(:zzzzblah3) do
-              m.measure_result(:bool) { false }
-              m.measure_result(:bool) { true }
+            m.measure(:block_1_2_3) do
+              m.measure_result(:bool_exp_1_2_3) { false }
+              m.measure_result(:bool_exp_1_2_3) { true }
             end
           end
         end
       end
     end
 
-    m.measure(:something) do
-      m.measure(:something1) do
-        sleep(0.2)
-      end
-      m.measure(:something2) do
-        sleep(0.3)
-      end
-      m.measure(:something2) do
+    m.measure(:sleep1) do
+      m.measure(:sleep1_1) do
         sleep(0.01)
       end
+      m.measure(:sleep_1_2) do
+        sleep(0.02)
+      end
+      m.measure(:sleep_1_3) do
+        sleep(0.03)
+      end
     end
-    m.measure(:fast) do
+    m.measure(:empty) do
     end
     m.measure_result("test") { sleep(1) }
     m.measure_result("test") { false }
     m.measure_result("test") { false }
+
+    m.method_meters(Array,[:sort,:reverse],[:new]) do
+      Array.new(1000000,"abc").reverse.sort
+    end
+
     puts m.report_simple
+    puts m.report_html
+
   end
 end
