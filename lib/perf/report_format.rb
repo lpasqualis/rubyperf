@@ -1,3 +1,7 @@
+#
+# Copyright (c) 2012 Lorenzo Pasqualis - DreamBox Learning, Inc
+# https://github.com/lpasqualis/rubyperf
+#
 
 module Perf
 

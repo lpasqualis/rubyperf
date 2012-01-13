@@ -1,3 +1,8 @@
+#
+# Copyright (c) 2012 Lorenzo Pasqualis - DreamBox Learning, Inc
+# https://github.com/lpasqualis/rubyperf
+#
+
 module Perf
   #
   # This class can be used in substitution to a Perf::Measure class to avoid overhead when performance measurments is not

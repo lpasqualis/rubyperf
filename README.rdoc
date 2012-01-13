@@ -1,6 +1,13 @@
 = rubyperf
 
-Description goes here.
+A gem to measure execution time of blocks of code, methods and expressions.
+It generates detailed reports in various formats showing the nested structure
+of the measures.
+
+It is designed to give tools to drill in the performance of hot code and
+identify bottlenecks.
+
+Currently available output formats for the report: text, html.
 
 == Contributing to rubyperf
  
@@ -14,6 +21,15 @@ Description goes here.
 
 == Copyright
 
-Copyright (c) 2012 lpasqualis. See LICENSE.txt for
-further details.
+Copyright (c) 2012 Lorenzo Pasqualis - DreamBox Learning, Inc
+
+Project home-page git repository:
+  https://github.com/lpasqualis/rubyperf
+
+Author can be contacted at:
+  lpasqualis@gmail.com
+
+Author's Blog:
+  http://www.lorenzopasqualis.com
+See LICENSE.txt for further details.
 

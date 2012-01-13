@@ -1,10 +1,47 @@
 #
-# rubyperf - Copyright (C) 2012 By Lorenzo Pasqualis - DreamBox Learning, Inc
+# Copyright (c) 2012 Lorenzo Pasqualis - DreamBox Learning, Inc
+#
+# Project home-page git repository:
+#
+#    https://github.com/lpasqualis/rubyperf
+#
+# Author can be contacted at:
+#
+#    lpasqualis@gmail.com
+#
+# Author's Blog:
+#
+#    http://www.lorenzopasqualis.com
+#
+# License:
+#
+#  Permission is hereby granted, free of charge, to any person obtaining
+#  a copy of this software and associated documentation files (the
+#  "Software"), to deal in the Software without restriction, including
+#  without limitation the rights to use, copy, modify, merge, publish,
+#  distribute, sublicense, and/or sell copies of the Software, and to
+#  permit persons to whom the Software is furnished to do so, subject to
+#  the following conditions:
+#
+#  The above copyright notice and this permission notice shall be
+#  included in all copies or substantial portions of the Software.
+#
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+#  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+#  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+#  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+#  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+#############################################################################
 #
 # A gem to measure execution time of blocks of code, methods and expressions.
-# It generates detailed reports in various formats showing the nested structure of the measures.
+# It generates detailed reports in various formats showing the nested structure
+# of the measures.
 #
-# It is designed to give tools to drill in the performance of hot code and identify bottlenecks.
+# It is designed to give tools to drill in the performance of hot code and
+# identify bottlenecks.
 #
 # Currently available output formats for the report: text, html.
 #
@@ -66,11 +103,7 @@
 #
 #        puts m.report_simple
 #
-#  Outputs the following report.
-#
-#  Note: the percentage in each line is calculated on the real time of the containing block. For example in the example
-#        block_1_1 takes 0.503% of the real time of block_1
-#        block_1_2 takes 77.414% of the real time of block
+#  This sample outputs the following report (see notes)).
 #
 #  measure path                                   : percent%  count       user     system      total        real
 #
@@ -101,6 +134,11 @@
 #      \Array                                     :  78.489%      2   0.110000   0.000000   0.110000 (  0.121563)
 #          \reverse                               :  38.671%      1   0.040000   0.000000   0.040000 (  0.047010)
 #          \sort                                  :  61.287%      1   0.070000   0.000000   0.070000 (  0.074502)
+#
+#
+#  Note: the percentage in each line is calculated on the real time of the containing block. For example in the example
+#          -> block_1_1 takes 0.503% of the real time of block_1
+#          -> block_1_2 takes 77.414% of the real time of block
 #
 
 require 'perf/meter'
