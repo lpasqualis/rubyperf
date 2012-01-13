@@ -206,14 +206,14 @@ module Perf
     # See measure_class_method for more information.
 
     def restore_class_method(klass,method_name)
-      restore_method_by_type(class << klass; self end,method_name,METHOD_TYPE_INSTANCE)
+      restore_method_by_type(class << klass; self end,method_name,METHOD_TYPE_CLASS)
     end
 
     # Removes the instrumentation of all class methods in a given class.
     # See measure_class_method for more information.
 
     def restore_all_class_methods(klass)
-      restore_all_methods_by_type(class << klass; self end,METHOD_TYPE_INSTANCE)
+      restore_all_methods_by_type(class << klass; self end,METHOD_TYPE_CLASS)
     end
 
     # Removes all instrumentation of class methods and instance methods in a given class.

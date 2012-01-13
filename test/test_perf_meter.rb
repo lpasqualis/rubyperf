@@ -50,18 +50,21 @@ class TestPerfMeter < Test::Unit::TestCase
       a.test_np
       PerfTestExample.static_method
     end
+    m
   end
 
-  def test_method_meters
+  def test_method_not_corrupted_after_restoring
     m=Perf::Meter.new
-    c=PerfTestExample.new
+    imethods=PerfTestExample.new.methods.sort
+    cmethods=PerfTestExample.methods.sort
     m.method_meters(PerfTestExample,[:test,:test_np],[:static_method]) do
       a=PerfTestExample.new
       a.test(1,2,3)
       a.test_np
       PerfTestExample.static_method
     end
-    puts PerfTestExample.methods.join("\n")
+    assert PerfTestExample.methods.sort     == cmethods
+    assert PerfTestExample.new.methods.sort == imethods
   end
 
   def test_method_metering
