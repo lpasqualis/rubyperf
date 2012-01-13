@@ -29,7 +29,7 @@ module Perf
     def initialize
       @measurements             = {}
       @current_stack            = []
-      @instrumented_methods     = {:instance=>[],:class=>[]}
+      @instrumented_methods     = {METHOD_TYPE_INSTANCE=>[],METHOD_TYPE_CLASS=>[]}
       @class_methods            = []
     end
 
