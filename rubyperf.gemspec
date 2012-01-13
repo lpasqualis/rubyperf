@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rubyperf}
-  s.version = "0.0.0"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["lpasqualis"]
@@ -18,11 +18,6 @@ Gem::Specification.new do |s|
   ]
   s.files = [
     ".document",
-    ".idea/encodings.xml",
-    ".idea/misc.xml",
-    ".idea/modules.xml",
-    ".idea/rubyperf.iml",
-    ".idea/vcs.xml",
     "Gemfile",
     "Gemfile.lock",
     "LICENSE.txt",
@@ -37,6 +32,7 @@ Gem::Specification.new do |s|
     "lib/perf/report_format_html.rb",
     "lib/perf/report_format_simple.rb",
     "lib/rubyperf.rb",
+    "rubyperf.gemspec",
     "test/helper.rb",
     "test/perf_test_example.rb",
     "test/rubyperf_test_helpers.rb",
