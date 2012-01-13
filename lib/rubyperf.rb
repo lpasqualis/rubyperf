@@ -2,15 +2,12 @@
 # Copyright (c) 2012 Lorenzo Pasqualis - DreamBox Learning, Inc
 #
 # Project home-page git repository:
-#
 #    https://github.com/lpasqualis/rubyperf
 #
 # Author can be contacted at:
-#
 #    lpasqualis@gmail.com
 #
 # Author's Blog:
-#
 #    http://www.lorenzopasqualis.com
 #
 # License:
@@ -36,17 +33,20 @@
 #
 #############################################################################
 #
-# A gem to measure execution time of blocks of code, methods and expressions.
+# This gem measures the execution time of blocks of code, methods and expressions.
 # It generates detailed reports in various formats showing the nested structure
 # of the measures.
 #
-# It is designed to give tools to drill in the performance of hot code and
-# identify bottlenecks.
+# Designed to give tools to drill in the performance of hot code and identify
+# bottlenecks.
 #
 # Currently available output formats for the report: text, html.
 #
 # Example of use:
 #
+#    require 'rubyperf'
+#
+#    def example
 #        m=Perf::Meter.new
 #        m.measure(:string_operations) do
 #          m.measure(:ciao) do
@@ -102,6 +102,7 @@
 #        end
 #
 #        puts m.report_simple
+#    end
 #
 #  This sample outputs the following report (see notes)).
 #
@@ -139,6 +140,10 @@
 #  Note: the percentage in each line is calculated on the real time of the containing block. For example in the example
 #          -> block_1_1 takes 0.503% of the real time of block_1
 #          -> block_1_2 takes 77.414% of the real time of block
+#
+# TODO:
+#
+#  * Eliminate the overhead of the perf meter operations from the computation of times.
 #
 
 require 'perf/meter'

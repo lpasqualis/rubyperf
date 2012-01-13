@@ -21,3 +21,4 @@ require 'rubyperf'
 
 class Test::Unit::TestCase
 end
+

@@ -10,15 +10,6 @@ module Perf
   #
   # Measures the runtime execution speed of a block of code, expression or entire methods.
   #
-  # TODO:
-  #
-  #  * Eliminate the overhead of the perf meter operations from the computation of times.
-  #  * Add an API to instrument all methods of a class in one bang.
-  #
-  # HISTORY:
-  #
-  #  * Jan 2012 | 1.0.0 | first public version
-  #
 
   class Meter
 
