@@ -14,19 +14,6 @@ require 'perf_test_example'
 
 class TestPerfMeter < Test::Unit::TestCase
 
-  # Called before every test method runs. Can be used
-  # to set up fixture information.
-  def setup
-    # Do nothing
-  end
-
-  # Called after every test method runs. Can be used to tear
-  # down fixture information.
-
-  def teardown
-    # Do nothing
-  end
-
   def test_method_not_corrupted_after_restoring
     m=Perf::Meter.new
     imethods=PerfTestExample.new.methods.sort
