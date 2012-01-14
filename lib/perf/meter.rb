@@ -36,7 +36,7 @@ module Perf
     end
 
     # Takes a description and a code block and measures the performance of the block.
-    # It returns the value retuend by the block
+    # It returns the value returned by the block
     #
     # ==== Attributes
     #
@@ -134,9 +134,9 @@ module Perf
     end
 
     # Puts a wrapper around a set of methods of a specific class to measure their performance.
-    # The set is provided with an array of iinstance methods, and one of class methods.
+    # The set is provided with an array of instance methods, and one of class methods.
     #
-    # The method defines the wrapper, yelds to the block, and then restores the instrumented class.
+    # The method defines the wrapper, yields to the block, and then restores the instrumented class.
     # This ensures that the instrumented class is restored, and that the instrumentation occurs only in the context
     # of the block
     #
