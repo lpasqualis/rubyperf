@@ -3,6 +3,8 @@
 # https://github.com/lpasqualis/rubyperf
 #
 
+require "rubyperf"
+
 module Perf
   #
   # This class can be used in substitution to a Perf::Meter class to avoid overhead when performance measurements is not
@@ -53,6 +55,14 @@ module Perf
 
     def measure_full_path(path,&code)
       yield
+    end
+
+    def method_missing(method_sym, *arguments, &block)
+      if method_sym.to_s =~ /^report_(.*)$/
+        klass=Object.const_get("Perf").const_get("ReportFormat#{$1.capitalize}")
+        return klass.new.format(self) if klass
+      end
+      super
     end
 
   end
