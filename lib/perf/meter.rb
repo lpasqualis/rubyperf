@@ -23,7 +23,7 @@ module Perf
     attr_accessor :current_stack
 
     def initialize
-      @measurements             = {}
+      @measurements             = {}      # A hash of Measure
       @current_stack            = []
       @instrumented_methods     = {METHOD_TYPE_INSTANCE=>[],METHOD_TYPE_CLASS=>[]}
       @class_methods            = []
@@ -251,25 +251,25 @@ module Perf
 
     def measure_full_path(path,&code)
       m=get_measurement(path)
-      m[:count] += 1
-      if m[:measuring]
+      m.count += 1
+      if m.measuring
         res=code.call
       else
         res=nil
-        m[:measuring]  = true
+        m.measuring  = true
         begin
-          m[:time]      += Benchmark.measure { res=code.call }
+          m.time      += Benchmark.measure { res=code.call }
         ensure
-          m[:measuring]  = false
+          m.measuring  = false
         end
       end
       res
     end
 
-private
+protected
 
     def set_measurement(path,m)
-      @measurements[path]=m
+      @measurements[path]=m  if m.is_a? Perf::Measure
     end
 
     def get_current_path
@@ -278,13 +278,15 @@ private
 
     def merge_measures(what_from,what_to)
       measurement_root = "#{PATH_MEASURES}\\#{get_current_path}"
+
       path_from        = "#{measurement_root}#{what_from}"
       path_to          = "#{measurement_root}#{what_to}"
+
       m_from = get_measurement(path_from)
       m_to   = get_measurement(path_to)
-      m_to[:time]       +=  m_from[:time]
-      m_to[:count]      +=  m_from[:count]
-      m_to[:measuring]  ||= m_from[:measuring]
+
+      m_to.merge(m_from)
+
       clear_measurement(path_from)
     end
 
@@ -293,9 +295,7 @@ private
     end
 
     def get_measurement(path)
-      @measurements[path] ||= {:count      => 0,
-                               :time       => Benchmark::Tms.new,
-                               :measuring  => false}
+      @measurements[path] ||= Perf::Measure.new(path)
     end
 
     def measure_method_by_type(klass,method_name,type)
@@ -308,13 +308,13 @@ private
         klass.send(:alias_method, old_method_symbol,method_name)
         klass.send(:define_method,method_name) do |*args|
           res=nil
-          m[:count] += 1
+          m.count += 1
           t = perf.measure_full_path(PATH_METHODS) do
                 perf.measure_full_path(klass_path) do
                   Benchmark.measure{ res=self.send(old_method_symbol, *args) }
                 end
               end
-          m[:time]  += t
+          m.time  += t
           res
         end
       end

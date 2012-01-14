@@ -93,7 +93,7 @@ class TestPerfMeter < Test::Unit::TestCase
     ensure
       measuring_correct=true
       m.measurements.each_pair do |_,x|
-        measuring_correct=false if x[:measuring]
+        measuring_correct=false if x.measuring
       end
       stack_correct = (m.current_stack.size==0)
     end

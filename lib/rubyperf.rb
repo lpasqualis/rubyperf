@@ -146,6 +146,7 @@
 #  * Eliminate the overhead of the perf meter operations from the computation of times.
 #
 
+require 'perf/measure'
 require 'perf/meter'
 require 'perf/meter_factory'
 require 'perf/no_op_meter'

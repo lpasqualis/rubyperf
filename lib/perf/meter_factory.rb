@@ -13,6 +13,8 @@ module Perf
 
     DEFAULT_METER = :default
 
+    @@perf_meters=nil
+
     # Returns a Perf::Meter with a given key, and creates it lazly if it doesn't exist'.
     def self.get(key=DEFAULT_METER)
       @@perf_meters ||= {}
