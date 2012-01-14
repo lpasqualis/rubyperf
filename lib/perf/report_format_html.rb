@@ -9,8 +9,8 @@ require 'cgi'
 module Perf
   class ReportFormatHtml < ReportFormat
 
-    PERCENT_FORMAT            = "%.3f"
-    INDENT = "&nbsp;"*3
+    PERCENT_FORMAT    = "%.3f"
+    INDENT            = "&nbsp;"*3
 
     def format_header(v)
       "<table class='rubyperf_report_format_html_table'><tr><th>#{v[:title]}</th><th>%</th><th>count</th><th>user</th><th>system</th><th>total</th><th>real</th></tr>"

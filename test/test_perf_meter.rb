@@ -4,11 +4,8 @@
 #
 
 require "test/unit"
-
 require 'helper'
-
 require 'rubyperf'
-
 require 'rubyperf_test_helpers'
 require 'perf_test_example'
 
