@@ -41,12 +41,15 @@ class TestPerfMeter < Test::Unit::TestCase
     m.measure(:a) { }
     m.measure(:b) { }
     m.measure(:d) { m.measure(:c) { m.measure(:d) {} }}
+
     assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\d\\c\\d"]
     assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\d\\c"]
     assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\d"]
     assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\b"]
     assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\a"]
     assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}"]
+    assert_equal 6,m.measurements.size
+
     assert_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\huh"]
     assert RubyperfTestHelpers.verify_report(m,["#{Perf::Meter::PATH_MEASURES}\\d\\c\\d",
                                                 "#{Perf::Meter::PATH_MEASURES}\\d\\c",
