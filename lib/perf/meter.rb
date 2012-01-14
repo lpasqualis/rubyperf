@@ -20,13 +20,19 @@ module Perf
     METHOD_TYPE_CLASS    = :class
 
     attr_accessor :measurements
-    attr_accessor :current_stack
+    attr_accessor :current_path
 
     def initialize
       @measurements             = {}      # A hash of Measure
-      @current_stack            = []
+      @current_path             = nil
       @instrumented_methods     = {METHOD_TYPE_INSTANCE=>[],METHOD_TYPE_CLASS=>[]}
       @class_methods            = []
+      #@overhead = nil
+      #@overhead = Benchmark.measure do
+      #  measure(:a) {}
+      #end
+      #@overhead = nil
+      @measurements             = {}      # A hash of Measure
     end
 
     # Takes a description and a code block and measures the performance of the block.
@@ -69,15 +75,33 @@ module Perf
     #  end
     #
 
-    def measure(what,&code)
-      path="#{PATH_MEASURES}\\#{get_current_path}"
-      @current_stack.push what
+    def measure(what,root_path=PATH_MEASURES,&code)
+      current_path=@current_path
+      if @current_path.nil?
+        @current_path=root_path
+        root=get_measurement(@current_path)
+      else
+        root=nil
+      end
+      @current_path+= "\\#{what}"
+      res=nil
       begin
-        res=measure_full_path(PATH_MEASURES) do
-          measure_full_path("#{path}#{what}",&code)
+        m=get_measurement(@current_path)
+        m.count     += 1
+        m.measuring +=1
+        if m.measuring>1
+          res=code.call
+        else
+          t = Benchmark.measure { res=code.call }
+          #t -= @overhead if @overhead
+          #if t.total>=0 && t.real>=0
+          m.time    += t
+          root.time += t if root
+          #end
         end
       ensure
-        @current_stack.pop
+        @current_path=current_path
+        m.measuring-=1
       end
       res
     end
@@ -104,7 +128,7 @@ module Perf
     #
 
     def measure_result(what,&code)
-      res=measure(what,&code)
+      res=measure(what,PATH_MEASURES,&code)
       merge_measures(what,"#{what} = \"#{res.to_s}\"")
       res
     end
@@ -247,25 +271,6 @@ module Perf
       restore_all_class_methods(klass)
     end
 
-    # Measures a block of code given a full path. Should not be called directly unless you know what you are doing.
-
-    def measure_full_path(path,&code)
-      m=get_measurement(path)
-      m.count += 1
-      if m.measuring
-        res=code.call
-      else
-        res=nil
-        m.measuring  = true
-        begin
-          m.time      += Benchmark.measure { res=code.call }
-        ensure
-          m.measuring  = false
-        end
-      end
-      res
-    end
-
 protected
 
     def set_measurement(path,m)
@@ -277,10 +282,8 @@ protected
     end
 
     def merge_measures(what_from,what_to)
-      measurement_root = "#{PATH_MEASURES}\\#{get_current_path}"
-
-      path_from        = "#{measurement_root}#{what_from}"
-      path_to          = "#{measurement_root}#{what_to}"
+      path_from        = "#{@current_path || PATH_MEASURES}\\#{what_from}"
+      path_to          = "#{@current_path || PATH_MEASURES}\\#{what_to}"
 
       m_from = get_measurement(path_from)
       m_to   = get_measurement(path_to)
@@ -300,22 +303,14 @@ protected
 
     def measure_method_by_type(klass,method_name,type)
       unless @instrumented_methods[type].find{|x| x[:klass]==klass && x[:method]==method_name}
-        klass_path="#{PATH_METHODS}\\#{klass}"
-        m = get_measurement("#{klass_path}\\#{method_name}")
         old_method_symbol="rubyperf_org_#{method_name}".to_sym
-        @instrumented_methods[type] << { :klass=>klass, :method=>method_name, :perf=>m, :org=>old_method_symbol }
-        perf=self
+        @instrumented_methods[type] << { :klass=>klass, :method=>method_name, :org=>old_method_symbol }
         klass.send(:alias_method, old_method_symbol,method_name)
+        perf=self
         klass.send(:define_method,method_name) do |*args|
-          res=nil
-          m.count += 1
-          t = perf.measure_full_path(PATH_METHODS) do
-                perf.measure_full_path(klass_path) do
-                  Benchmark.measure{ res=self.send(old_method_symbol, *args) }
-                end
-              end
-          m.time  += t
-          res
+          perf.measure("#{klass}.#{method_name}",PATH_METHODS) do
+            self.send(old_method_symbol, *args)
+          end
         end
       end
     end

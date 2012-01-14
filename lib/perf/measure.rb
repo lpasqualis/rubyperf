@@ -11,13 +11,17 @@ module Perf
       @path      = measure_path
       @count     = 0
       @time      = Benchmark::Tms.new
-      @measuring = false
+      @measuring = 0
+    end
+
+    def measuring?
+      @measuring>0
     end
 
     def merge(m)
       @count      +=  m.count
       @time       +=  m.time
-      @measuring  ||= m.measuring
+      @measuring  +=  m.measuring
     end
 
   end

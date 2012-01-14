@@ -11,6 +11,19 @@ require 'perf_test_example'
 
 class TestPerfMeter < Test::Unit::TestCase
 
+  ALLOW_OUTPUT = false
+
+  def test_overhead
+    runs=3000
+    m=Perf::Meter.new
+    b1=Benchmark.measure { runs.times { m.measure(:a) { } }}
+    b2=Benchmark.measure {runs.times {} }
+
+    puts b1      if ALLOW_OUTPUT
+    puts b2      if ALLOW_OUTPUT
+    puts b1-b2   if ALLOW_OUTPUT
+  end
+
   def test_method_not_corrupted_after_restoring
     m=Perf::Meter.new
     imethods=PerfTestExample.new.methods.sort
@@ -23,6 +36,7 @@ class TestPerfMeter < Test::Unit::TestCase
     end
     assert PerfTestExample.methods.sort     == cmethods
     assert PerfTestExample.new.methods.sort == imethods
+    puts m.report_simple if ALLOW_OUTPUT
   end
 
   def test_method_metering
@@ -33,7 +47,7 @@ class TestPerfMeter < Test::Unit::TestCase
       a.test_np
       PerfTestExample.static_method
     end
-    m.report_simple
+    puts m.report_simple if ALLOW_OUTPUT
   end
 
   def test_base_report
@@ -56,11 +70,13 @@ class TestPerfMeter < Test::Unit::TestCase
                                                 "#{Perf::Meter::PATH_MEASURES}\\d",
                                                 "#{Perf::Meter::PATH_MEASURES}\\b",
                                                 "#{Perf::Meter::PATH_MEASURES}"])
+    puts m.report_simple if ALLOW_OUTPUT
   end
 
   def test_output_html
     m=RubyperfTestHelpers.get_measure
-    m.report_html
+    htmlcode=m.report_html
+    puts htmlcode if ALLOW_OUTPUT
   end
 
   def test_exception_handling
@@ -73,20 +89,23 @@ class TestPerfMeter < Test::Unit::TestCase
 
     begin
       m.measure(:some_exception) do
+        sleep 0.2
         a=12/0   # Divide by zero
+        sleep 0.2
       end
     rescue
       exception_raised=true
     ensure
       measuring_correct=true
       m.measurements.each_pair do |_,x|
-        measuring_correct=false if x.measuring
+        measuring_correct=false if x.measuring?
       end
-      stack_correct = (m.current_stack.size==0)
+      stack_correct = m.current_path.nil?
     end
     assert exception_raised
     assert measuring_correct
     assert stack_correct
+    puts m.report_simple if ALLOW_OUTPUT
   end
 
   def test_return_values
@@ -97,6 +116,13 @@ class TestPerfMeter < Test::Unit::TestCase
 
     assert_equal 5,m.measure_result(:five) {5}
     assert_equal "byebye",m.measure_result(:byebye) {"bye"+"bye"}
+
+    m.measure(:in_here_too) do
+      assert_equal 5,m.measure_result(:five) {5}
+      assert_equal "byebye",m.measure_result(:byebye) {"bye"+"bye"}
+    end
+
+    puts m.report_simple if ALLOW_OUTPUT
   end
 
   def test_nesting_measure
@@ -111,6 +137,7 @@ class TestPerfMeter < Test::Unit::TestCase
     assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\a"]
     assert_not_nil m.measurements["#{Perf::Meter::PATH_MEASURES}"]
     assert_nil m.measurements["#{Perf::Meter::PATH_MEASURES}\\huh"]
+    puts m.report_simple if ALLOW_OUTPUT
   end
 
   def test_measure_instance_method
@@ -153,6 +180,7 @@ class TestPerfMeter < Test::Unit::TestCase
     a.test_np
     #puts puts m.report_simple
     m.restore_all_methods(PerfTestExample)
+    puts m.report_simple if ALLOW_OUTPUT
   end
 
   def test_basic
@@ -209,6 +237,8 @@ class TestPerfMeter < Test::Unit::TestCase
     m.method_meters(Array,[:sort,:reverse],[:new]) do
       Array.new(1000000,"abc").reverse.sort
     end
+
+    puts m.report_simple if ALLOW_OUTPUT
 
   end
 end
