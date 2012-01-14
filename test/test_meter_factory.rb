@@ -12,7 +12,7 @@ require 'rubyperf'
 require 'rubyperf_test_helpers'
 require 'perf_test_example'
 
-class TestPerfMeter < Test::Unit::TestCase
+class TestMeterFactory < Test::Unit::TestCase
 
   def test_basic
     m1=Perf::MeterFactory.get()
