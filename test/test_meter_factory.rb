@@ -15,6 +15,7 @@ require 'perf_test_example'
 class TestMeterFactory < Test::Unit::TestCase
 
   def test_basic
+    Perf::MeterFactory.clear_all!
     m1=Perf::MeterFactory.get()
     m2=Perf::MeterFactory.get()
 

@@ -14,10 +14,10 @@ class TestPerfMeter < Test::Unit::TestCase
   ALLOW_OUTPUT = false
 
   def test_overhead
-    runs=3000
+    runs=10000
     m=Perf::Meter.new
-    b1=Benchmark.measure { runs.times { m.measure(:a) { } }}
-    b2=Benchmark.measure {runs.times {} }
+    b1=Benchmark.measure { runs.times { m.measure(:a) { } } }
+    b2=Benchmark.measure { runs.times {                   } }
 
     puts b1      if ALLOW_OUTPUT
     puts b2      if ALLOW_OUTPUT
@@ -45,6 +45,19 @@ class TestPerfMeter < Test::Unit::TestCase
       a=PerfTestExample.new
       a.test(1,2,3)
       a.test_np
+      PerfTestExample.static_method
+    end
+    puts m.report_simple if ALLOW_OUTPUT
+  end
+
+  def test_methods_with_measure
+    Perf::MeterFactory.clear_all!
+    m=Perf::MeterFactory.get
+    m.method_meters(PerfTestExample,[:test,:test_np,:test_with_measure],[:static_method]) do
+      a=PerfTestExample.new
+      a.test(1,2,3)
+      a.test_np
+      a.test_with_measure
       PerfTestExample.static_method
     end
     puts m.report_simple if ALLOW_OUTPUT
