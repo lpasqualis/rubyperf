@@ -107,25 +107,8 @@ class TestPerfMeter < Test::Unit::TestCase
     assert PerfTestExample.methods.sort     == cmethods
     assert PerfTestExample.new.methods.sort == imethods
 
-    assert_equal ['\methods,0',
-                  '\methods\#<Class:PerfTestExample>.static_method,1',
-                  '\methods\PerfTestExample.test,1',
-                  '\methods\PerfTestExample.test_np,1'],
-                 m.report_list_of_measures
-
     assert_equal 6,m.report_simple.length
     assert_equal 6,m.report_html.length
-  end
-
-  def test_method_metering
-    m=Perf::Meter.new
-    m.method_meters(PerfTestExample,[:test,:test_np],[:static_method]) do
-      a=PerfTestExample.new
-      a.test(1,2,3)
-      a.test_np
-      PerfTestExample.static_method
-    end
-
     assert_equal ['\methods,0',
                   '\methods\#<Class:PerfTestExample>.static_method,1',
                   '\methods\PerfTestExample.test,1',
