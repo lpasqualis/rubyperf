@@ -22,17 +22,62 @@ module Perf
     attr_accessor :measurements
     attr_accessor :current_path
 
-    def initialize
+    @@overhead = nil
+
+    # Overhead calculation tuning constants
+    OVERHEAD_CALC_MAX_REPETITIONS = 1000
+    OVERHEAD_CALC_RUNS            = 100
+    OVERHEAD_CALC_MIN_TIME        = 0.1
+
+    # Creation of a Perf::Meter allows you to specify if you want to consider the overhead in the calculation or not.
+    # The overhead is calculated once and stored away. That way it is always the same in a single run.
+
+    def initialize(subtract_overhead=true)
       @measurements             = {}      # A hash of Measure
       @current_path             = nil
       @instrumented_methods     = {METHOD_TYPE_INSTANCE=>[],METHOD_TYPE_CLASS=>[]}
       @class_methods            = []
-      #@overhead = nil
-      #@overhead = Benchmark.measure do
-      #  measure(:a) {}
-      #end
-      #@overhead = nil
+      @subtract_overhead        = subtract_overhead
+      @@overhead              ||= measure_overhead  if subtract_overhead
       @measurements             = {}      # A hash of Measure
+    end
+
+    def overhead
+      if @subtract_overhead
+        @@overhead.clone
+      else
+        Benchmark::Tms.new
+      end
+    end
+
+    # Returns the total time - expressed with a Benchmark::Tms object - for all the blocks measures
+    def blocks_time
+      @measurements[PATH_MEASURES].time if @measurements[PATH_MEASURES]
+    end
+
+    # Returns the total time - expressed with a Benchmark::Tms object - for all the methods measures
+    def methods_time
+      @measurements[PATH_METHODS].time if @measurements[PATH_METHODS]
+    end
+
+    # This method measures the overhead of calling "measure" on an instace of Perf::Meter.
+    # It will run OVERHEAD_CALC_RUNS measures of an empty block until the total time taken
+    # exceeds OVERHEAD_CALC_MIN_TIME.
+
+    def measure_overhead
+      t=Benchmark::Tms.new
+      cnt=0
+      rep=0
+      runs=OVERHEAD_CALC_RUNS
+      while t.total<OVERHEAD_CALC_MIN_TIME && rep<OVERHEAD_CALC_MAX_REPETITIONS
+        t+=Benchmark.measure do
+          runs.times {measure(:a) {}}
+        end
+        rep  += 1        # Count the repetitions
+        cnt  += runs     # Count the total runs
+        runs *= 2        # Increases the number of runs to quickly adapt to the speed of the machine
+      end
+      t/cnt
     end
 
     # Takes a description and a code block and measures the performance of the block.
@@ -93,11 +138,11 @@ module Perf
           res=code.call
         else
           t = Benchmark.measure { res=code.call }
-          #t -= @overhead if @overhead
-          #if t.total>=0 && t.real>=0
-          m.time    += t
-          root.time += t if root
-          #end
+          t -= @@overhead if @subtract_overhead && @@overhead  # Factor out the overhead of measure, if we are asked to do so
+          if t.total>=0 && t.real>=0
+            m.time    += t
+            root.time += t if root
+          end
         end
       ensure
         @current_path=current_path

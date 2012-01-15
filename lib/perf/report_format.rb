@@ -62,7 +62,7 @@ module Perf
       end
 
       # Header
-      rep << format_header(:title      => "measure path", :max_title  => max_title,
+      rep << format_header(:title      => "measure",      :max_title  => max_title,
                            :percent    => "percent",
                            :count      => "count",        :max_count  => max_count,
                            :time       => Benchmark::Tms::CAPTION,

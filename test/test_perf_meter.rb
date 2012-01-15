@@ -268,13 +268,34 @@ class TestPerfMeter < Test::Unit::TestCase
   def test_overhead
     runs=1_000
     a=(1..100_000).to_a
-    m=Perf::Meter.new
-    b1=Benchmark.measure { runs.times { m.measure(:a) { a.reverse! } } }
-    b2=Benchmark.measure { runs.times { a.reverse!                 } }
+    m_no_overhead=Perf::Meter.new(true)
+    b1_no_overhead=Benchmark.measure { runs.times { m_no_overhead.measure(:a) { a.reverse! } } }
+    b2_no_overhead=Benchmark.measure { runs.times { a.reverse!                 } }
+
+    m_yes_overhead=Perf::Meter.new(false)
+    b1_yes_overhead=Benchmark.measure { runs.times { m_yes_overhead.measure(:a) { a.reverse! } } }
+    b2_yes_overhead=Benchmark.measure { runs.times { a.reverse!                 } }
+
+
     assert_equal  ['\blocks,0',
                    '\blocks\a,1000'],
-                  m.report_list_of_measures
-    # Here we should assert if the overhead is > a certain percentage.
-    # puts "Measurement overhead x 1000 = #{b1-b2}"
+                  m_no_overhead.report_list_of_measures
+
+    assert_equal  m_no_overhead.report_list_of_measures,
+                  m_yes_overhead.report_list_of_measures
+
+    # TODO: find the magic assert that ensures that the overhead calculation is correct. Ensure that such assert
+    #       is machine independent and that will pass the test of time (new hardware getting faster and faster)
+
+    #calculated_overhead_1= (b1_no_overhead-b2_no_overhead)/runs
+    #calculated_overhead_2= (b1_yes_overhead-b2_yes_overhead)/runs
+    #
+    #puts (calculated_overhead_1-m_no_overhead.overhead)
+    #puts (calculated_overhead_2-m_yes_overhead.overhead)
+    #
+    #puts m_no_overhead.report_simple
+    #puts m_yes_overhead.report_simple
+    #
+    #assert m_no_overhead.blocks_time.total > m_yes_overhead.blocks_time.total
   end
 end
