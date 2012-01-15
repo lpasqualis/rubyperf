@@ -5,12 +5,12 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rubyperf}
-  s.version = "1.0.0"
+  s.version = "1.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["lpasqualis"]
-  s.date = %q{2012-01-13}
-  s.description = %q{Measures the performance of blocks of code, and provide reporting in various formats}
+  s.date = %q{2012-01-15}
+  s.description = %q{Used to easily measure the performance of blocks of Ruby code, expressions and methods; provides reporting in various formats}
   s.email = %q{lpasqualis@gmail.com}
   s.extra_rdoc_files = [
     "LICENSE.txt",
@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
     "lib/perf/no_op_meter.rb",
     "lib/perf/report_format.rb",
     "lib/perf/report_format_html.rb",
+    "lib/perf/report_format_list_of_measures.rb",
     "lib/perf/report_format_simple.rb",
     "lib/rubyperf.rb",
     "rubyperf.gemspec",
@@ -43,7 +44,7 @@ Gem::Specification.new do |s|
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.6}
-  s.summary = %q{A gem to measure ruby code performance}
+  s.summary = %q{rubyperf helps you measure ruby code performance}
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
