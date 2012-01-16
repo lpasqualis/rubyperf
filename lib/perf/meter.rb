@@ -32,13 +32,17 @@ module Perf
     # Creation of a Perf::Meter allows you to specify if you want to consider the overhead in the calculation or not.
     # The overhead is calculated once and stored away. That way it is always the same in a single run.
 
-    def initialize(subtract_overhead=true)
+    def initialize(options={})
+      @options = options.clone
+
+      @options[:subtract_overhead] = true if @options[:subtract_overhead].nil? # Never use ||= with booleans
+
       @measurements             = {}      # A hash of Measure
       @current_path             = nil
       @instrumented_methods     = {METHOD_TYPE_INSTANCE=>[],METHOD_TYPE_CLASS=>[]}
       @class_methods            = []
-      @subtract_overhead        = subtract_overhead
-      @@overhead              ||= measure_overhead  if subtract_overhead
+      @subtract_overhead        = @options[:subtract_overhead]
+      @@overhead              ||= measure_overhead  if @subtract_overhead
       @measurements             = {}      # A hash of Measure
     end
 

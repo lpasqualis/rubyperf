@@ -268,11 +268,11 @@ class TestPerfMeter < Test::Unit::TestCase
   def test_overhead
     runs=1_000
     a=(1..100_000).to_a
-    m_no_overhead=Perf::Meter.new(true)
+    m_no_overhead=Perf::Meter.new(:subtract_overhead=>true)
     b1_no_overhead=Benchmark.measure { runs.times { m_no_overhead.measure(:a) { a.reverse! } } }
     b2_no_overhead=Benchmark.measure { runs.times { a.reverse!                 } }
 
-    m_yes_overhead=Perf::Meter.new(false)
+    m_yes_overhead=Perf::Meter.new(:subtract_overhead=>false)
     b1_yes_overhead=Benchmark.measure { runs.times { m_yes_overhead.measure(:a) { a.reverse! } } }
     b2_yes_overhead=Benchmark.measure { runs.times { a.reverse!                 } }
 
