@@ -30,6 +30,55 @@ module Perf
     #     :count_format   => sprintf format of the count (see COUNT_FORMAT for default)
     #     :indent_string  => what string to use to indent the path (see INDENT for default)
     #
+    # ==== Stylesheet Example
+    #
+    #    table.rubyperf_report
+    #    {
+    #        border: solid 2px #555555;
+    #        padding: 0;
+    #    }
+    #
+    #    table.rubyperf_report tr.odd_row
+    #    {
+    #        background-color: #CCCCCC;
+    #    }
+    #
+    #    table.rubyperf_report tr.even_row
+    #    {
+    #        background-color: #DDDDDD;
+    #        padding: 0;
+    #    }
+    #
+    #    table.rubyperf_report td.title
+    #    {
+    #        text-align: left;
+    #        padding: 0;
+    #        font-family: "Courier New";
+    #        font-weight: bold;
+    #    }
+    #
+    #    table.rubyperf_report td.accuracy
+    #    {
+    #        text-align: left;
+    #        padding: 0;
+    #        font-family: "Courier New";
+    #    }
+    #
+    #    table.rubyperf_report td.percent, td.count, td.system_time, td.user_time, td.real_time, td.total_time
+    #    {
+    #        text-align: right;
+    #        padding: 0;
+    #        font-family: "Courier New";
+    #    }
+    #
+    #    table.rubyperf_report th
+    #    {
+    #        background-color: #888888;
+    #        border: 2px solid black;
+    #        text-align: left;
+    #        padding: 2px;
+    #    }
+
     # ==== Example
     #
     # m=Perf::Meter.new
@@ -50,6 +99,7 @@ module Perf
       "<table class='rubyperf_report'><tr>" \
         "<th class='title'>#{v[:title]}</th>" \
         "<th class='percent'>%</th>" \
+        "<th class='accuracy'>accuracy</th>" \
         "<th class='count'>count</th>" \
         "<th class='user_time'>user</th>" \
         "<th class='system_time'>system</th>" \
@@ -65,6 +115,7 @@ module Perf
       "<tr class='#{@line % 2==0 ? "even_row" : "odd_row"}'>" \
         "<td class='title'>#{v[:title]}</td>" \
         "<td class='percent'>#{percent}</td>" \
+        "<td class='accuracy'>#{v[:accuracy]}</td>" \
         "<td class='count'>#{@count_format % v[:count]}</td>" \
         "<td class='user_time'>#{@time_format % v[:time].utime}</td>" \
         "<td class='system_time'>#{@time_format % v[:time].stime}</td>" \

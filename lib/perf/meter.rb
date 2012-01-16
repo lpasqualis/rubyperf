@@ -43,7 +43,7 @@ module Perf
       @instrumented_methods     = {METHOD_TYPE_INSTANCE=>[],METHOD_TYPE_CLASS=>[]}
       @class_methods            = []
       @subtract_overhead        = @options[:subtract_overhead]
-      if @subtract_overhead
+      if @@overhead.nil?
         @@overhead              ||= measure_overhead
         @measurements             = {}      # A hash of Measure; must repeat here to cleanup what measure_overhead did
       end
@@ -130,9 +130,10 @@ module Perf
         else
           t = Benchmark.measure { res=code.call }
           t -= @@overhead if @subtract_overhead && @@overhead  # Factor out the overhead of measure, if we are asked to do so
-          if t.total>=0 && t.real>=0
-            m.time    += t
-            root.time += t if root
+          root.count += m.count if root
+          if t.total>=0 || t.real>=0
+            m.time += t
+            root.time  += t if root
           end
         end
       ensure
@@ -305,6 +306,26 @@ module Perf
     def restore_all_methods(klass)
       restore_all_instance_methods(klass)
       restore_all_class_methods(klass)
+    end
+
+    # Returns an index of accuracy of the measure calculated in relation to the overhead.
+    # The larger the accuracy, the more accurate the measure.
+    # accuracy < 0  means that it is not possible to calculate;
+    # accuracy <= 1 means that the measure is equal or smaller than the overhead.
+    #               This makes the measure very inaccurate.
+    # accuracy = X means that the measure is X times the overhead.
+
+    def accuracy(path)
+      if @@overhead
+        over=@@overhead.total+@@overhead.real
+        if over>0 && @@overhead.total>=0 && @@overhead.real>=0
+          m=get_measurement(path)
+          if m.count>0 && m.time.total>0 && m.time.real>0
+            return (m.time.total+m.time.real) / (over*m.count)
+          end
+        end
+      end
+      -1
     end
 
 protected

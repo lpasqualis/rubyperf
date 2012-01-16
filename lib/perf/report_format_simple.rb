@@ -56,7 +56,7 @@ module Perf
 
     def format_measure(v)
       percent= v[:percent].is_a?(String) ? v[:percent] : (PERCENT_FORMAT%v[:percent])
-      "#{v[:title].ljust(v[:max_title]+EXTRA_SPACES_AFTER_TITLE," ")}: #{percent.rjust(7," ")}% #{v[:count].to_s.rjust(v[:max_count]," ")} #{v[:time].to_s.gsub(/\n/,'')}\n"
+      "#{v[:title].ljust(v[:max_title]+EXTRA_SPACES_AFTER_TITLE," ")}: #{percent.rjust(7," ")}% #{v[:accuracy].rjust(v[:max_accuracy]," ")} #{v[:count].to_s.rjust(v[:max_count]," ")} #{v[:time].to_s.gsub(/\n/,'')}\n"
     end
 
     def format_title(what,options)

@@ -13,7 +13,8 @@ module Perf
   #
   class ReportFormat
 
-    MIN_TOTAL_TIME = 1.0e-10
+    MIN_TOTAL_TIME      = 1.0e-10
+    MAX_ACCURACY_SIZE = 10
 
     # Format takes a Perf::Meter plus a hash of options and converts it into a header, followed by a series
     # of entries in a hash format that can be easily converted in any other format such as Text, HTML, XML, etc.
@@ -69,6 +70,7 @@ module Perf
                            :percent    => "percent",
                            :count      => "count",        :max_count  => max_count,
                            :time       => Benchmark::Tms::CAPTION,
+                           :accuracy  => "accuracy",      :max_accuracy => MAX_ACCURACY_SIZE,
                            :options    => options)
 
       # Root
@@ -81,6 +83,7 @@ module Perf
                               :percent    => percents[what]||0.0,
                               :count      => m.count,            :max_count  => max_count,
                               :time       => m.time,
+                              :accuracy   => format_accuracy(perf.accuracy(m.path)),    :max_accuracy => MAX_ACCURACY_SIZE,
                               :options    => options)
       end
 
@@ -127,6 +130,25 @@ module Perf
 
     def format_footer(options)
       ""
+    end
+
+    # Format the accuracy
+    # See Perf::Meter#accuracy for more information
+
+    def format_accuracy(accuracy)
+      if accuracy<0
+        "unknown"
+      elsif accuracy<=1
+        "very poor"
+      elsif accuracy<=50
+        "poor"
+      elsif accuracy<=100
+        "fair"
+      elsif accuracy<=1000
+        "good"
+      else
+        "excellent"
+      end
     end
 
   end
