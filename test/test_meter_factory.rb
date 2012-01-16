@@ -14,8 +14,16 @@ require 'perf_test_example'
 
 class TestMeterFactory < Test::Unit::TestCase
 
-  def test_noop
+  def setup()
     Perf::MeterFactory.clear_all!
+  end
+
+  def teardown()
+    Perf::MeterFactory.clear_all!
+    Perf::MeterFactory.set_factory_options(:noop=>false)
+  end
+
+  def test_noop
     Perf::MeterFactory.set_factory_options(:noop=>true)
     m1=Perf::MeterFactory.get()
     assert m1.is_a? Perf::NoOpMeter
@@ -26,7 +34,6 @@ class TestMeterFactory < Test::Unit::TestCase
   end
 
   def test_noop2
-    Perf::MeterFactory.clear_all!
     Perf::MeterFactory.set_factory_options(:noop=>true)
     m=Perf::MeterFactory.get()
     assert m.is_a? Perf::NoOpMeter

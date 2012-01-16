@@ -64,26 +64,6 @@ module Perf
       @measurements[PATH_METHODS].time if @measurements[PATH_METHODS]
     end
 
-    # This method measures the overhead of calling "measure" on an instace of Perf::Meter.
-    # It will run OVERHEAD_CALC_RUNS measures of an empty block until the total time taken
-    # exceeds OVERHEAD_CALC_MIN_TIME.
-
-    def measure_overhead
-      t=Benchmark::Tms.new
-      cnt=0
-      rep=0
-      runs=OVERHEAD_CALC_RUNS
-      while t.total<OVERHEAD_CALC_MIN_TIME && rep<OVERHEAD_CALC_MAX_REPETITIONS
-        t+=Benchmark.measure do
-          runs.times {measure(:a) {}}
-        end
-        rep  += 1        # Count the repetitions
-        cnt  += runs     # Count the total runs
-        runs *= 2        # Increases the number of runs to quickly adapt to the speed of the machine
-      end
-      t/cnt
-    end
-
     # Takes a description and a code block and measures the performance of the block.
     # It returns the value returned by the block
     #
@@ -321,6 +301,26 @@ module Perf
     end
 
 protected
+
+    # This method measures the overhead of calling "measure" on an instace of Perf::Meter.
+    # It will run OVERHEAD_CALC_RUNS measures of an empty block until the total time taken
+    # exceeds OVERHEAD_CALC_MIN_TIME.
+
+    def measure_overhead
+      t=Benchmark::Tms.new
+      cnt=0
+      rep=0
+      runs=OVERHEAD_CALC_RUNS
+      while t.total<OVERHEAD_CALC_MIN_TIME && rep<OVERHEAD_CALC_MAX_REPETITIONS
+        t+=Benchmark.measure do
+          runs.times {measure(:a) {}}
+        end
+        rep  += 1        # Count the repetitions
+        cnt  += runs     # Count the total runs
+        runs *= 2        # Increases the number of runs to quickly adapt to the speed of the machine
+      end
+      t/cnt
+    end
 
     def set_measurement(path,m)
       @measurements[path]=m  if m.is_a? Perf::Measure

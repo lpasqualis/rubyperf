@@ -33,7 +33,7 @@ module Perf
     def measure_instance_method(klass,method_name)
     end
 
-    def measure_instance_method(klass,method_name)
+    def restore_instance_method(klass,method_name)
     end
 
     def restore_all_instance_methods(klass)
@@ -49,6 +49,20 @@ module Perf
     end
 
     def restore_all_methods(klass)
+    end
+
+    def overhead
+      Benchmark::Tms.new
+    end
+
+    # Returns the total time - expressed with a Benchmark::Tms object - for all the blocks measures
+    def blocks_time
+      Benchmark::Tms.new
+    end
+
+    # Returns the total time - expressed with a Benchmark::Tms object - for all the methods measures
+    def methods_time
+      Benchmark::Tms.new
     end
 
     def method_missing(method_sym, *arguments, &block)
