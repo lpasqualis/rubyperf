@@ -5,7 +5,6 @@
 
 
 require 'rubyperf'
-require 'cgi'
 
 module Perf
 

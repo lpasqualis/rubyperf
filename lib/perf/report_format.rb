@@ -3,6 +3,8 @@
 # https://github.com/lpasqualis/rubyperf
 #
 
+require "rubyperf"
+
 module Perf
 
   #

@@ -4,6 +4,7 @@
 #
 
 require "benchmark"
+require "rubyperf"
 
 module Perf
 
