@@ -17,6 +17,7 @@ module Perf
       @line=0
     end
 
+    # Formats the header
     def format_header(v)
       "<table class='rubyperf_report'><tr>" \
         "<th class='title'>#{v[:title]}</th>" \
@@ -29,6 +30,7 @@ module Perf
       "</tr>"
     end
 
+    # Formats the measure
     def format_measure(v)
       @line+=1
        percent= v[:percent].is_a?(String) ? v[:percent] : (PERCENT_FORMAT%v[:percent])
