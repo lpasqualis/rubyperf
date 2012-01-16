@@ -12,13 +12,35 @@ module Perf
     PERCENT_FORMAT    = "%.3f"
     INDENT            = "&nbsp;"*3
 
+    def initialize
+      super
+      @line=0
+    end
+
     def format_header(v)
-      "<table class='rubyperf_report_format_html_table'><tr><th>#{v[:title]}</th><th>%</th><th>count</th><th>user</th><th>system</th><th>total</th><th>real</th></tr>"
+      "<table class='rubyperf_report'><tr>" \
+        "<th class='title'>#{v[:title]}</th>" \
+        "<th class='percent'>%</th>" \
+        "<th class='count'>count</th>" \
+        "<th class='user_time'>user</th>" \
+        "<th class='system_time'>system</th>" \
+        "<th class='total_time'>total</th>" \
+        "<th class='real_time'>real</th>" \
+      "</tr>"
     end
 
     def format_measure(v)
+      @line+=1
        percent= v[:percent].is_a?(String) ? v[:percent] : (PERCENT_FORMAT%v[:percent])
-      "<tr><td>#{v[:title]}</td><td>#{percent}</td><td>#{v[:count]}</td><td>#{v[:time].utime}</td><td>#{v[:time].stime}</td><td>#{v[:time].total}</td><td>#{v[:time].real}</td></td>"
+      "<tr class='#{@line % 2==0 ? "even_row" : "odd_row"}'>" \
+        "<td class='title'>#{v[:title]}</td>" \
+        "<td class='percent'>#{percent}</td>" \
+        "<td class='count'>#{v[:count]}</td>" \
+        "<td class='user_time'>#{v[:time].utime}</td>" \
+        "<td class='system_time'>#{v[:time].stime}</td>" \
+        "<td class='total_time'>#{v[:time].total}</td>" \
+        "<td class='real_time'>#{v[:time].real}</td>" \
+      "</tr>"
     end
 
     def format_footer(v)
