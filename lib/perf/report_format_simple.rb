@@ -49,6 +49,7 @@ module Perf
     EXTRA_SPACES_AFTER_TITLE  = 2
 
     def format(perf,options={})
+      options ||= {}
       options[:indent]        ||= DEFAULT_INDENT
       super perf,options
     end

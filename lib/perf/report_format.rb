@@ -26,6 +26,7 @@ module Perf
     #
 
     def format(perf,options={})
+      options||={}
       options[:max_count_len] ||= 6
       rep=[]
       percents={}

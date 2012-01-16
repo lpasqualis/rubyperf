@@ -417,7 +417,7 @@ protected
     def method_missing(method_sym, *arguments, &block)
       if method_sym.to_s =~ /^report_(.*)$/
         klass=Object.const_get("Perf").const_get("ReportFormat#{camelize($1)}")
-        return klass.new.format(self) if klass
+        return klass.new.format(self,arguments[0]) if klass
       end
       super
     end

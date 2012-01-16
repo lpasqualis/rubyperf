@@ -108,6 +108,7 @@ class TestPerfMeter < Test::Unit::TestCase
     assert PerfTestExample.new.methods.sort == imethods
 
     assert_equal 6,m.report_simple.length
+    assert_equal 6,m.report_html(:percent_format=>"%.8f").length
     assert_equal 6,m.report_html.length
     assert_equal ['\methods,0',
                   '\methods\#<Class:PerfTestExample>.static_method,1',
