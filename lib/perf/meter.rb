@@ -45,8 +45,8 @@ module Perf
       @subtract_overhead        = @options[:subtract_overhead]
       @measurements             = {}      # A hash of Measure
 
-      # Do this last!
-      @@overhead              ||= measure_overhead  if @subtract_overhead
+      # TODO: fix
+      #@@overhead              ||= measure_overhead  if @subtract_overhead
     end
 
     def overhead
