@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rubyperf}
-  s.version = "1.2.0"
+  s.version = "1.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["lpasqualis"]
@@ -38,6 +38,7 @@ Gem::Specification.new do |s|
     "test/perf_test_example.rb",
     "test/rubyperf_test_helpers.rb",
     "test/test_meter_factory.rb",
+    "test/test_no_op_meter.rb",
     "test/test_perf_meter.rb"
   ]
   s.homepage = %q{http://github.com/lpasqualis/rubyperf}
