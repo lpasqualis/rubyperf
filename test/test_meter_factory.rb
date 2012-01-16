@@ -33,6 +33,15 @@ class TestMeterFactory < Test::Unit::TestCase
     assert m1.report_simple.nil?
   end
 
+  def test_meter
+    m=Perf::MeterFactory.meter
+    assert m.is_a? Perf::NoOpMeter
+    Perf::MeterFactory.clear_all!
+    m=Perf::MeterFactory.get
+    m=Perf::MeterFactory.meter
+    assert m.is_a? Perf::Meter
+  end
+
   def test_noop2
     Perf::MeterFactory.set_factory_options(:noop=>true)
     m=Perf::MeterFactory.get()

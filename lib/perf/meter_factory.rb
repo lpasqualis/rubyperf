@@ -63,6 +63,14 @@ module Perf
       end
     end
 
+    # meter is like get, but if the meter doesn't already exists it returns a NoOpMeter. You can use this every time
+    # that you want "somebody else" make the decision of what meter to use.
+
+    def self.meter(key=DEFAULT_METER)
+      @@perf_meters ||= {}
+      @@perf_meters[key] ||= Perf::NoOpMeter.new
+    end
+
     # To set options for new meters created by get, when specific options are not passed, you can do so with this
     # method.
 
