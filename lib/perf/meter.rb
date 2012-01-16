@@ -320,7 +320,7 @@ module Perf
         over=@@overhead.total+@@overhead.real
         if over>0 && @@overhead.total>=0 && @@overhead.real>=0
           m=get_measurement(path)
-          if m.count>0 && m.time.total>0 && m.time.real>0
+          if m.count>0 && (m.time.total+m.time.real)>0
             return (m.time.total+m.time.real) / (over*m.count)
           end
         end
