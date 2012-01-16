@@ -12,6 +12,12 @@ module Perf
   #
   class NoOpMeter
 
+    def measurements
+    end
+
+    def current_path
+    end
+
     def initialize(options=nil)
     end
 
