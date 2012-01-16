@@ -51,10 +51,6 @@ module Perf
     def restore_all_methods(klass)
     end
 
-    def measure_full_path(path,&code)
-      yield
-    end
-
     def method_missing(method_sym, *arguments, &block)
       if method_sym.to_s =~ /^report_(.*)$/
         klass=Object.const_get("Perf").const_get("ReportFormat#{$1.capitalize}")
