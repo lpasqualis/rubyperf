@@ -18,6 +18,10 @@ module Perf
     def current_path
     end
 
+    def has_measures?
+      false
+    end
+
     def initialize(options=nil)
     end
 
@@ -73,10 +77,14 @@ module Perf
 
     def method_missing(method_sym, *arguments, &block)
       if method_sym.to_s =~ /^report_(.*)$/
-        klass=Object.const_get("Perf").const_get("ReportFormat#{$1.capitalize}")
+        klass=Object.const_get("Perf").const_get("ReportFormat#{camelize($1)}")
         return nil if klass
       end
       super
+    end
+
+    def camelize(from)
+      from.to_s.gsub(/\/(.?)/) { "::#{$1.upcase}" }.gsub(/(?:^|_)(.)/) { $1.upcase }
     end
 
   end

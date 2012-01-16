@@ -116,6 +116,13 @@ class TestPerfMeter < Test::Unit::TestCase
                 m.report_list_of_measures
   end
 
+  def test_has_measures
+    m=Perf::Meter.new
+    assert !m.has_measures?
+    m.measure(:a) {assert m.has_measures?}
+    assert m.has_measures?
+  end
+
   def test_methods_with_measure
     Perf::MeterFactory.clear_all!
     m=Perf::MeterFactory.get

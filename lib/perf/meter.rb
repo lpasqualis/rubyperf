@@ -57,6 +57,10 @@ module Perf
       end
     end
 
+    def has_measures?
+      @measurements.length > 0
+    end
+
     # Returns the total time - expressed with a Benchmark::Tms object - for all the blocks measures
     def blocks_time
       @measurements[PATH_MEASURES].time if @measurements[PATH_MEASURES]
