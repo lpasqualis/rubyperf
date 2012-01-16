@@ -36,6 +36,7 @@ class TestMeterFactory < Test::Unit::TestCase
   def test_meter
     m=Perf::MeterFactory.meter
     assert m.is_a? Perf::NoOpMeter
+
     Perf::MeterFactory.clear_all!
     m=Perf::MeterFactory.get
     m=Perf::MeterFactory.meter
