@@ -45,6 +45,7 @@ module Perf
 
     @@perf_meters       = nil
     @@new_meter_options = {}
+    @@factory_options   = {:noop=>false}
 
     # Returns a Perf::Meter with a given key, and creates it lazily if it doesn't exist'.
     # NOTE: The options are set ONLY the first time that get is called on a specific key.
@@ -52,14 +53,27 @@ module Perf
 
     def self.get(key=DEFAULT_METER,new_meter_options=nil)
       @@perf_meters ||= {}
-      @@perf_meters[key] ||= Perf::Meter.new(new_meter_options || @@new_meter_options)
+      if !@@factory_options[:noop]
+        # Creates a real meter
+        @@perf_meters[key] ||= Perf::Meter.new(new_meter_options || @@new_meter_options)
+      else
+        # If noop is set, creates a no-nop version of the meter, unless a meter with this key has already been
+        # created.
+        @@perf_meters[key] ||= Perf::NoOpMeter.new
+      end
     end
 
     # To set options for new meters created by get, when specific options are not passed, you can do so with this
     # method.
 
     def self.set_new_meters_options(options)
-      @@new_meter_options=options.clone
+      @@new_meter_options.merge(options)
+    end
+
+    # Set options for the factory behaviour.
+
+    def self.set_factory_options(options)
+      @@factory_options.merge!(options)
     end
 
     # If you use set_new_meters_options, or if you pass options to Perf::MeterFactory.get, you are setting options

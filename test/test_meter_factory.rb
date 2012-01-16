@@ -14,6 +14,17 @@ require 'perf_test_example'
 
 class TestMeterFactory < Test::Unit::TestCase
 
+  def test_noop
+    Perf::MeterFactory.clear_all!
+    Perf::MeterFactory.set_factory_options(:noop=>true)
+    m1=Perf::MeterFactory.get()
+    assert m1.is_a? Perf::NoOpMeter
+    m1.measure(:something) do
+      # ...
+    end
+    assert m1.report_simple.nil?
+  end
+
   def test_basic
     Perf::MeterFactory.clear_all!
     m1=Perf::MeterFactory.get()

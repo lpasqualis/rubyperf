@@ -12,7 +12,7 @@ module Perf
   #
   class NoOpMeter
 
-    def initialize(logger = nil)
+    def initialize(options=nil)
     end
 
     def clear
@@ -58,7 +58,7 @@ module Perf
     def method_missing(method_sym, *arguments, &block)
       if method_sym.to_s =~ /^report_(.*)$/
         klass=Object.const_get("Perf").const_get("ReportFormat#{$1.capitalize}")
-        return klass.new.format(self) if klass
+        return nil if klass
       end
       super
     end
