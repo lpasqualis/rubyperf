@@ -24,5 +24,9 @@ module Perf
       @measuring  +=  m.measuring
     end
 
+    def adjusted_time(perf)
+      @time-(perf.overhead*@count)
+    end
+
   end
 end

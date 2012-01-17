@@ -46,14 +46,14 @@ module Perf
       @class_methods            = []
       @subtract_overhead        = @options[:subtract_overhead]
       if @@overhead.nil?
-        @@overhead              ||= measure_overhead
-        @measurements             = {}      # A hash of Measure; must repeat here to cleanup what measure_overhead did
+        @@overhead              = measure_overhead
+        @measurements           = {}      # A hash of Measure; must repeat here to cleanup what measure_overhead did
       end
     end
 
     def overhead
       if @subtract_overhead
-        @@overhead.clone
+        @@overhead.dup
       else
         Benchmark::Tms.new
       end
@@ -131,12 +131,9 @@ module Perf
           res=code.call
         else
           t = Benchmark.measure { res=code.call }
-          t -= @@overhead if @subtract_overhead && @@overhead  # Factor out the overhead of measure, if we are asked to do so
           root.count += m.count if root
-          if t.total>=0 || t.real>=0
-            m.time += t
-            root.time  += t if root
-          end
+          m.time     += t
+          root.time  += t if root
         end
       ensure
         @current_path=current_path
@@ -320,11 +317,9 @@ module Perf
     def accuracy(path)
       if @@overhead
         over=@@overhead.total+@@overhead.real
-        if over>0 && @@overhead.total>=0 && @@overhead.real>=0
+        if over>0
           m=get_measurement(path)
-          if m.count>0 && (m.time.total+m.time.real)>0
-            return (m.time.total+m.time.real) / (over*m.count)
-          end
+          return ((m.time.total+m.time.real) / (over*m.count)) if m.count>0
         end
       end
       ACCURACY_UNKNOWN

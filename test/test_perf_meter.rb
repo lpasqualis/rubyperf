@@ -133,9 +133,8 @@ class TestPerfMeter < Test::Unit::TestCase
     end
     assert m.accuracy(m.measurements['\blocks'].path) >= 0
     assert m.accuracy(m.measurements['\blocks\a'].path) >= 0
-    assert m.accuracy(m.measurements['\blocks\b'].path) < 0
-    assert_equal 2,m.report_list_of_measures(:filter_below_accuracy=>0.0001).length
-    assert_equal 2,m.report_list_of_measures(:filter_below_percent=>1).length
+    assert m.accuracy(m.measurements['\blocks\b'].path) < 1
+    assert_equal 2,m.report_list_of_measures(:filter_below_accuracy=>1).length
     assert_equal 3,m.report_list_of_measures(:filter_below_accuracy=>Perf::Meter::ACCURACY_UNKNOWN).length
     assert_equal 3,m.report_list_of_measures(:filter_below_percent=>-10).length
   end
@@ -152,7 +151,6 @@ class TestPerfMeter < Test::Unit::TestCase
       sleep(0.0001)
     end
     assert_equal 4,m.report_list_of_measures.length
-    assert_equal 3,m.report_list_of_measures(:filter_below_accuracy=>1).length
     assert_equal 3,m.report_list_of_measures(:filter_below_accuracy=>500).length
     assert_equal 3,m.report_list_of_measures(:filter_below_percent=>10).length
     assert_equal 2,m.report_list_of_measures(:filter_below_percent=>45).length
