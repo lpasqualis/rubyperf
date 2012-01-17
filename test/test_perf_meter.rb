@@ -136,7 +136,7 @@ class TestPerfMeter < Test::Unit::TestCase
     assert m.accuracy(m.measurements['\blocks\b'].path) < 0
     assert_equal 2,m.report_list_of_measures(:filter_below_accuracy=>0.0001).length
     assert_equal 2,m.report_list_of_measures(:filter_below_percent=>1).length
-    assert_equal 3,m.report_list_of_measures(:filter_below_accuracy=>-10).length
+    assert_equal 3,m.report_list_of_measures(:filter_below_accuracy=>Perf::Meter::ACCURACY_UNKNOWN).length
     assert_equal 3,m.report_list_of_measures(:filter_below_percent=>-10).length
   end
 

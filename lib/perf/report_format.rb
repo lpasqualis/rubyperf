@@ -14,7 +14,7 @@ module Perf
   class ReportFormat
 
     MIN_TOTAL_TIME      = 1.0e-10
-    MAX_ACCURACY_SIZE = 10
+    MAX_ACCURACY_SIZE   = 10
 
     # Format takes a Perf::Meter plus a hash of options and converts it into a header, followed by a series
     # of entries in a hash format that can be easily converted in any other format such as Text, HTML, XML, etc.
@@ -143,7 +143,7 @@ module Perf
     # See Perf::Meter#accuracy for more information
 
     def format_accuracy(accuracy)
-      if accuracy<0
+      if accuracy==Perf::Meter::ACCURACY_UNKNOWN
         "unknown"
       elsif accuracy<=1
         "very poor"

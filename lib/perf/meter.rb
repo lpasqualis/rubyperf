@@ -30,6 +30,8 @@ module Perf
     OVERHEAD_CALC_RUNS            = 100
     OVERHEAD_CALC_MIN_TIME        = 0.1
 
+    ACCURACY_UNKNOWN              = -100
+
     # Creation of a Perf::Meter allows you to specify if you want to consider the overhead in the calculation or not.
     # The overhead is calculated once and stored away. That way it is always the same in a single run.
 
@@ -325,7 +327,7 @@ module Perf
           end
         end
       end
-      -1
+      ACCURACY_UNKNOWN
     end
 
 protected
