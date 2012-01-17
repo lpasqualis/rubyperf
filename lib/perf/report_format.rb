@@ -24,11 +24,15 @@ module Perf
     # ==== Options
     #
     # * +:max_count_len+  : Maximum expected length of a block/espresson/method count.
+    # * +filter_below_accuracy+ : Minimum accuracy to report the measure; floating point value; default=nil (all)
+    # * +filter_below_percent+ : Minimum percent to report the measure; floating point value; default=nil (all)
     #
 
     def format(perf,options={})
       options||={}
       options[:max_count_len] ||= 6
+      options[:filter_below_accuracy] ||= nil
+      options[:filter_below_percent]  ||= nil
       rep=[]
       percents={}
 
@@ -77,13 +81,16 @@ module Perf
 
       # Split of keys
       keys_in_order.each do |what|
+        next if options[:filter_below_percent] && percents[what]<options[:filter_below_percent]
         m=perf.measurements[what]
+        accuracy = perf.accuracy(m.path)
+        next if options[:filter_below_accuracy] && accuracy<options[:filter_below_accuracy]
         title = format_title(what,options)
-        rep << format_measure(:title      => title,              :max_title  => max_title,
+        rep << format_measure(:title      => title,                     :max_title  => max_title,
                               :percent    => percents[what]||0.0,
-                              :count      => m.count,            :max_count  => max_count,
+                              :count      => m.count,                   :max_count  => max_count,
                               :time       => m.time,
-                              :accuracy   => format_accuracy(perf.accuracy(m.path)),    :max_accuracy => MAX_ACCURACY_SIZE,
+                              :accuracy   => format_accuracy(accuracy), :max_accuracy => MAX_ACCURACY_SIZE,
                               :options    => options)
       end
 

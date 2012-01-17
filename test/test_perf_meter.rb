@@ -134,6 +134,28 @@ class TestPerfMeter < Test::Unit::TestCase
     assert m.accuracy(m.measurements['\blocks'].path) >= 0
     assert m.accuracy(m.measurements['\blocks\a'].path) >= 0
     assert m.accuracy(m.measurements['\blocks\b'].path) < 0
+    assert_equal 2,m.report_list_of_measures(:filter_below_accuracy=>0.0001).length
+    assert_equal 2,m.report_list_of_measures(:filter_below_percent=>1).length
+    assert_equal 3,m.report_list_of_measures(:filter_below_accuracy=>-10).length
+    assert_equal 3,m.report_list_of_measures(:filter_below_percent=>-10).length
+  end
+
+  def test_filters
+    m=Perf::Meter.new
+    m.measure(:a) do
+      sleep(0.2)
+    end
+    m.measure(:b) do
+      sleep(0.1)
+    end
+    m.measure(:c) do
+      sleep(0.0001)
+    end
+    assert_equal 4,m.report_list_of_measures.length
+    assert_equal 3,m.report_list_of_measures(:filter_below_accuracy=>1).length
+    assert_equal 3,m.report_list_of_measures(:filter_below_accuracy=>500).length
+    assert_equal 3,m.report_list_of_measures(:filter_below_percent=>10).length
+    assert_equal 2,m.report_list_of_measures(:filter_below_percent=>45).length
   end
 
   def test_methods_with_measure
