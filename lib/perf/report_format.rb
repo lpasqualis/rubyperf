@@ -13,8 +13,20 @@ module Perf
   #
   class ReportFormat
 
+    # Descrition of the accuracy, as reported by the reports
+
+    ACCURACY_DESCRIPTION = {Perf::Meter::ACCURACY_UNKNOWN    => "?",
+                            Perf::Meter::ACCURACY_VERY_POOR  => "very poor",
+                            Perf::Meter::ACCURACY_POOR       => "poor",
+                            Perf::Meter::ACCURACY_FAIR       => "fair",
+                            Perf::Meter::ACCURACY_GOOD       => "good",
+                            Perf::Meter::ACCURACY_EXCELLENT  => "excellent"}
+
+    # Largest accuracy description length
+    MAX_ACCURACY_SIZE   = ACCURACY_DESCRIPTION.values.map{|x| x.length}.max+1        # Maximium size of the accuracy value returned by format_accuracy
+
+    # Minimum possible time
     MIN_TOTAL_TIME      = 1.0e-10
-    MAX_ACCURACY_SIZE   = 10
 
     # Format takes a Perf::Meter plus a hash of options and converts it into a header, followed by a series
     # of entries in a hash format that can be easily converted in any other format such as Text, HTML, XML, etc.
@@ -29,6 +41,9 @@ module Perf
     #
 
     def format(perf,options={})
+
+      perf.adjust_overhead
+
       options||={}
       options[:max_count_len] ||= 6
       options[:filter_below_accuracy] ||= nil
@@ -48,10 +63,10 @@ module Perf
         max_title = title_len             if title_len>max_title
         max_count = m.count.to_s.length   if m.count.to_s.length>max_count
 
-        total += m.adjusted_time(perf) if path.size==2    # This calculates the max of the level-1 entries needed for the root entry.
+        total += perf.adjusted_time(m) if path.size==2    # This calculates the max of the level-1 entries needed for the root entry.
       end
 
-      totals=[total.real]
+      totals=[total.real+total.total]
       depth=1
       keys_in_order.each do |what|
         m = perf.measurements[what]
@@ -64,9 +79,10 @@ module Perf
           end
           depth=path.size-1
         end
-        totals[totals.size-1] = m.adjusted_time(perf).real
-        totals[totals.size-1] = MIN_TOTAL_TIME if totals[totals.size-1]<MIN_TOTAL_TIME
-        percents[what]=(m.adjusted_time(perf).real*100.0)/totals[totals.size-2]
+        adj=perf.adjusted_time(m)
+        totals[totals.size-1] = adj.real+adj.total
+        #totals[totals.size-1] = MIN_TOTAL_TIME if totals[totals.size-1]<MIN_TOTAL_TIME
+        percents[what]=((adj.real+adj.total)*100.0)/totals[totals.size-2]
       end
 
       # Header
@@ -74,7 +90,7 @@ module Perf
                            :percent    => "percent",
                            :count      => "count",        :max_count  => max_count,
                            :time       => Benchmark::Tms::CAPTION,
-                           :accuracy  => "accuracy",      :max_accuracy => MAX_ACCURACY_SIZE,
+                           :accuracy   => "accuracy",      :max_accuracy => MAX_ACCURACY_SIZE,
                            :options    => options)
 
       # Root
@@ -89,7 +105,7 @@ module Perf
         rep << format_measure(:title      => title,                     :max_title  => max_title,
                               :percent    => percents[what]||0.0,
                               :count      => m.count,                   :max_count  => max_count,
-                              :time       => m.adjusted_time(perf),
+                              :time       => perf.adjusted_time(m),
                               :accuracy   => format_accuracy(accuracy), :max_accuracy => MAX_ACCURACY_SIZE,
                               :options    => options)
       end
@@ -143,19 +159,7 @@ module Perf
     # See Perf::Meter#accuracy for more information
 
     def format_accuracy(accuracy)
-      if accuracy==Perf::Meter::ACCURACY_UNKNOWN
-        "unknown"
-      elsif accuracy<=1
-        "very poor"
-      elsif accuracy<=50
-        "poor"
-      elsif accuracy<=100
-        "fair"
-      elsif accuracy<=1000
-        "good"
-      else
-        "excellent"
-      end
+      ACCURACY_DESCRIPTION[ACCURACY_DESCRIPTION.keys.sort.find{|a| a>=accuracy}]
     end
 
   end

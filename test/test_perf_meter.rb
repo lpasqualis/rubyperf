@@ -66,7 +66,7 @@ class TestPerfMeter < Test::Unit::TestCase
       Array.new(1000000,"abc").reverse.sort
     end
 
-    assert_equal ['\blocks,10',
+    assert_equal ['\blocks,9',
     '\blocks\empty,1',
     '\blocks\emtpy_loop,1',
     '\blocks\rough_overhead_x10000,1',
@@ -131,9 +131,9 @@ class TestPerfMeter < Test::Unit::TestCase
     m.measure(:a) do
       ("123"*1_000_000).reverse
     end
-    assert m.accuracy(m.measurements['\blocks'].path) >= 0
-    assert m.accuracy(m.measurements['\blocks\a'].path) >= 0
-    assert m.accuracy(m.measurements['\blocks\b'].path) < 1
+    assert m.accuracy(m.measurements['\blocks'].path) > Perf::Meter::ACCURACY_UNKNOWN
+    assert m.accuracy(m.measurements['\blocks\a'].path) > Perf::Meter::ACCURACY_UNKNOWN
+    assert m.accuracy(m.measurements['\blocks\b'].path) < Perf::Meter::ACCURACY_VERY_POOR
     assert_equal 2,m.report_list_of_measures(:filter_below_accuracy=>1).length
     assert_equal 3,m.report_list_of_measures(:filter_below_accuracy=>Perf::Meter::ACCURACY_UNKNOWN).length
     assert_equal 3,m.report_list_of_measures(:filter_below_percent=>-10).length
@@ -150,6 +150,7 @@ class TestPerfMeter < Test::Unit::TestCase
     m.measure(:c) do
       sleep(0.0001)
     end
+    #puts m.report_simple
     assert_equal 4,m.report_list_of_measures.length
     assert_equal 3,m.report_list_of_measures(:filter_below_accuracy=>500).length
     assert_equal 3,m.report_list_of_measures(:filter_below_percent=>10).length
@@ -297,13 +298,21 @@ class TestPerfMeter < Test::Unit::TestCase
                   '\blocks\some_expressions\expression1 = "1111",1',
                   '\blocks\some_expressions\expression1 = "13579",1',
                   '\blocks\some_expressions\expression2 = "string",1',
-                  '\methods,5',
+                  '\methods,4',
                   '\methods\#<Class:PerfTestExample>.static_method,1',
                   '\methods\PerfTestExample.test,1',
                   '\methods\PerfTestExample.test_np,2'],
                   m.report_list_of_measures
   end
 
+  def test_precision
+    runs=1_000
+    a=(1..100_000).to_a
+    m=Perf::Meter.new
+    runs.times { m.measure(:a) { a.reverse! } }
+    m.measure(:b) { runs.times { a.reverse! } }
+    # TODO find proper assert
+  end
 
   def test_overhead
     runs=1_000
@@ -317,7 +326,7 @@ class TestPerfMeter < Test::Unit::TestCase
     b2_yes_overhead=Benchmark.measure { runs.times { a.reverse!                 } }
 
 
-    assert_equal  ['\blocks,500500',
+    assert_equal  ['\blocks,1000',
                    '\blocks\a,1000'],
                   m_no_overhead.report_list_of_measures
 
@@ -336,6 +345,8 @@ class TestPerfMeter < Test::Unit::TestCase
     #puts m_no_overhead.report_simple
     #puts m_yes_overhead.report_simple
     #
-    #assert m_no_overhead.blocks_time.total > m_yes_overhead.blocks_time.total
+    # puts m_no_overhead.blocks_time
+    # puts m_yes_overhead.blocks_time
+    # assert m_no_overhead.blocks_time.total+m_no_overhead.blocks_time.real <= m_yes_overhead.blocks_time.total+m_no_overhead.blocks_time.real
   end
 end

@@ -14,8 +14,21 @@ module Perf
 
   class Meter
 
+    # Constant for accuracy. The constant represents the upper bound of its description.
+
+    ACCURACY_UNKNOWN   = 0.0
+    ACCURACY_VERY_POOR = 1.0
+    ACCURACY_POOR      = 50.0
+    ACCURACY_FAIR      = 100.0
+    ACCURACY_GOOD      = 1000.0
+    ACCURACY_EXCELLENT = 1.0/0
+
+    # Name of the path roots
+
     PATH_MEASURES  = '\blocks'
     PATH_METHODS   = '\methods'
+
+    # Hash keys for instrumented methods
 
     METHOD_TYPE_INSTANCE = :instance
     METHOD_TYPE_CLASS    = :class
@@ -30,8 +43,6 @@ module Perf
     OVERHEAD_CALC_RUNS            = 100
     OVERHEAD_CALC_MIN_TIME        = 0.1
 
-    ACCURACY_UNKNOWN              = -100
-
     # Creation of a Perf::Meter allows you to specify if you want to consider the overhead in the calculation or not.
     # The overhead is calculated once and stored away. That way it is always the same in a single run.
 
@@ -43,7 +54,6 @@ module Perf
       @measurements             = {}      # A hash of Measure
       @current_path             = nil
       @instrumented_methods     = {METHOD_TYPE_INSTANCE=>[],METHOD_TYPE_CLASS=>[]}
-      @class_methods            = []
       @subtract_overhead        = @options[:subtract_overhead]
       if @@overhead.nil?
         @@overhead              = measure_overhead
@@ -55,7 +65,31 @@ module Perf
       if @subtract_overhead
         @@overhead.dup
       else
-        Benchmark::Tms.new
+        {:time=>Benchmark::Tms.new,:count=>0}
+      end
+    end
+
+    def adjusted_time(m)
+      return m.time if !@subtract_overhead || !@overhead
+
+      utime,stime,cutime,cstime,real = nil,nil,nil,nil,nil
+
+      adj=m.time-((@overhead[:time]*m.count)/@overhead[:count])
+
+      utime  = 0.0 if adj.utime  < 0.0
+      stime  = 0.0 if adj.stime  < 0.0
+      cutime = 0.0 if adj.cutime < 0.0
+      cstime = 0.0 if adj.cstime < 0.0
+      real   = 0.0 if adj.real   < 0.0
+
+      if utime || stime || cutime || cstime || real
+        Benchmark::Tms.new(utime  || adj.utime,
+                           stime  || adj.stime,
+                           cutime || adj.cutime,
+                           cstime || adj.cstime,
+                           real   || adj.real)
+      else
+        adj
       end
     end
 
@@ -126,14 +160,14 @@ module Perf
       begin
         m=get_measurement(@current_path)
         m.count     += 1
+        root.count  += 1 if root
         m.measuring +=1
         if m.measuring>1
           res=code.call
         else
           t = Benchmark.measure { res=code.call }
-          root.count += m.count if root
-          m.time     += t
           root.time  += t if root
+          m.time     += t
         end
       ensure
         @current_path=current_path
@@ -316,13 +350,22 @@ module Perf
 
     def accuracy(path)
       if @@overhead
-        over=@@overhead.total+@@overhead.real
+        over=@@overhead[:time].total+@@overhead[:time].real
         if over>0
           m=get_measurement(path)
-          return ((m.time.total+m.time.real) / (over*m.count)) if m.count>0
+          return ((m.time.total+m.time.real)*@@overhead[:count] / (2*over*m.count)) if m.count>0
         end
       end
-      ACCURACY_UNKNOWN
+      -1.0
+    end
+
+    # The overhead cannot be larger that any of the measures taken. If a measure taken is larger than the overhead,
+    # than this function takes care of adjusting the overhead. This is called by the ReportFormat class just before
+    # rendering the report, so you should not have to call this by hand unless you are interested in getting the
+    # overhead.
+
+    def adjust_overhead
+      false
     end
 
 protected
@@ -344,7 +387,7 @@ protected
         cnt  += runs     # Count the total runs
         runs *= 2        # Increases the number of runs to quickly adapt to the speed of the machine
       end
-      t/cnt
+      {:time=>t,:count=>cnt}
     end
 
     def set_measurement(path,m)
