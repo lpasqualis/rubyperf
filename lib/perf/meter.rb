@@ -40,7 +40,7 @@ module Perf
 
     # Overhead calculation tuning constants
     OVERHEAD_CALC_MAX_REPETITIONS = 1000
-    OVERHEAD_CALC_RUNS            = 100
+    OVERHEAD_CALC_RUNS            = 10
     OVERHEAD_CALC_MIN_TIME        = 0.1
 
     # Creation of a Perf::Meter allows you to specify if you want to consider the overhead in the calculation or not.
@@ -353,7 +353,7 @@ module Perf
         over=@@overhead[:time].total+@@overhead[:time].real
         if over>0
           m=get_measurement(path)
-          return ((m.time.total+m.time.real)*@@overhead[:count] / (2*over*m.count)) if m.count>0
+          return ((m.time.total+m.time.real)*@@overhead[:count] / (over*m.count)) if m.count>0
         end
       end
       -1.0
