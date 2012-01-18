@@ -5,15 +5,14 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rubyperf}
-  s.version = "1.3.6"
+  s.version = "1.3.7"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["lpasqualis"]
-  s.date = %q{2012-01-17}
+  s.date = %q{2012-01-18}
   s.description = %q{Used to easily measure the performance of blocks of Ruby code, expressions and methods; provides reporting in various formats}
   s.email = %q{lpasqualis@gmail.com}
   s.extra_rdoc_files = [
-    "MIT-LICENSE.txt",
     "README.rdoc"
   ]
   s.files = [
