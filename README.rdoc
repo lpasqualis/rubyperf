@@ -4,7 +4,7 @@ A gem to measure execution time of blocks of code, methods and expressions.
 It generates detailed reports in various formats showing the nested structure
 of the measures.
 
-It is designed to give tools to drill in the performance of hot code and
+Designed as a tool to drill in the performance of hot code and
 identify bottlenecks.
 
 Currently available output formats for the report: text, html.
@@ -19,17 +19,18 @@ Currently available output formats for the report: text, html.
 * Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
 * Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
-== Copyright
+== License
 
-Copyright (c) 2012 Lorenzo Pasqualis - DreamBox Learning, Inc
+See MIT-LICENSE.txt
+
+== Links
+
+DreamBox Learning:
+  http://wwww.dreambox.com
 
 Project home-page git repository:
   https://github.com/lpasqualis/rubyperf
 
-Author can be contacted at:
-  lpasqualis@gmail.com
-
 Author's Blog:
   http://www.lorenzopasqualis.com
-See LICENSE.txt for further details.
 

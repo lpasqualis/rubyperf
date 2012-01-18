@@ -1,13 +1,10 @@
-Copyright (c) 2012 Lorenzo Pasqualis - DreamBox Learning, Inc
 
-Project home-page git repository:
-  https://github.com/lpasqualis/rubyperf
+Copyright (c) 2012 DreamBox Learning, Inc
+http://www.dreambox.com
 
-Author can be contacted at:
-  lpasqualis@gmail.com
+Author: Lorenzo Pasqualis
 
-Author's Blog:
-  http://www.lorenzopasqualis.com
+https://github.com/lpasqualis/rubyperf
 
 LICENSE:
 

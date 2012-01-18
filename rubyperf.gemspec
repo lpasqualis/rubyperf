@@ -13,14 +13,14 @@ Gem::Specification.new do |s|
   s.description = %q{Used to easily measure the performance of blocks of Ruby code, expressions and methods; provides reporting in various formats}
   s.email = %q{lpasqualis@gmail.com}
   s.extra_rdoc_files = [
-    "LICENSE.txt",
+    "MIT-LICENSE.txt",
     "README.rdoc"
   ]
   s.files = [
     ".document",
     "Gemfile",
     "Gemfile.lock",
-    "LICENSE.txt",
+    "MIT-LICENSE.txt",
     "README.rdoc",
     "Rakefile",
     "VERSION",
