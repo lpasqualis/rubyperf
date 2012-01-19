@@ -10,17 +10,17 @@ require 'perf_test_example'
 class TestMeterFactory < Test::Unit::TestCase
 
   def setup()
-    Perf::MeterFactory.clear_all!
+    Perf::MeterFactory.instance.clear_all!
   end
 
   def teardown()
-    Perf::MeterFactory.clear_all!
-    Perf::MeterFactory.set_factory_options(:noop=>false)
+    Perf::MeterFactory.instance.clear_all!
+    Perf::MeterFactory.instance.set_factory_options(:noop=>false)
   end
 
   def test_noop
-    Perf::MeterFactory.set_factory_options(:noop=>true)
-    m1=Perf::MeterFactory.get()
+    Perf::MeterFactory.instance.set_factory_options(:noop=>true)
+    m1=Perf::MeterFactory.instance.get()
     assert m1.is_a? Perf::NoOpMeter
     m1.measure(:something) do
       # ...
@@ -29,18 +29,18 @@ class TestMeterFactory < Test::Unit::TestCase
   end
 
   def test_meter
-    m=Perf::MeterFactory.meter
+    m=Perf::MeterFactory.instance.meter
     assert m.is_a? Perf::NoOpMeter
 
-    Perf::MeterFactory.clear_all!
-    m=Perf::MeterFactory.get
-    m=Perf::MeterFactory.meter
+    Perf::MeterFactory.instance.clear_all!
+    m=Perf::MeterFactory.instance.get
+    m=Perf::MeterFactory.instance.meter
     assert m.is_a? Perf::Meter
   end
 
   def test_noop2
-    Perf::MeterFactory.set_factory_options(:noop=>true)
-    m=Perf::MeterFactory.get()
+    Perf::MeterFactory.instance.set_factory_options(:noop=>true)
+    m=Perf::MeterFactory.instance.get()
     assert m.is_a? Perf::NoOpMeter
     m.measure(:string_operations) do
       m.measure(:ciao) do
@@ -88,9 +88,9 @@ class TestMeterFactory < Test::Unit::TestCase
   end
 
   def test_basic
-    Perf::MeterFactory.clear_all!
-    m1=Perf::MeterFactory.get()
-    m2=Perf::MeterFactory.get()
+    Perf::MeterFactory.instance.clear_all!
+    m1=Perf::MeterFactory.instance.get()
+    m2=Perf::MeterFactory.instance.get()
 
     m1.measure(:a) {}
     m1.measure(:b) {}
@@ -98,27 +98,27 @@ class TestMeterFactory < Test::Unit::TestCase
     assert m1.eql?(m2)
     assert_equal 3, m2.measurements.count
     assert_equal 3, m1.measurements.count
-    assert_equal 1,Perf::MeterFactory.all.length
+    assert_equal 1,Perf::MeterFactory.instance.all.length
 
-    m3=Perf::MeterFactory.get(:some_meter)
-    m4=Perf::MeterFactory.get(:some_meter)
+    m3=Perf::MeterFactory.instance.get(:some_meter)
+    m4=Perf::MeterFactory.instance.get(:some_meter)
 
     assert m3.eql? m4
     assert !(m1.eql? m3)
-    assert_equal 2,Perf::MeterFactory.all.length
+    assert_equal 2,Perf::MeterFactory.instance.all.length
 
-    Perf::MeterFactory.clear_meter(:some_meter)
-    assert_equal 1,Perf::MeterFactory.all.length
+    Perf::MeterFactory.instance.clear_meter(:some_meter)
+    assert_equal 1,Perf::MeterFactory.instance.all.length
 
-    Perf::MeterFactory.clear_all!
-    assert_equal 0,Perf::MeterFactory.all.length
+    Perf::MeterFactory.instance.clear_all!
+    assert_equal 0,Perf::MeterFactory.instance.all.length
 
     ameter = Perf::Meter.new
-    Perf::MeterFactory.set_meter(:ameter,ameter)
-    assert (ameter.eql? Perf::MeterFactory.get(:ameter))
+    Perf::MeterFactory.instance.set_meter(:ameter,ameter)
+    assert (ameter.eql? Perf::MeterFactory.instance.get(:ameter))
 
-    Perf::MeterFactory.set_default(ameter)
-    assert (ameter.eql? Perf::MeterFactory.get)
+    Perf::MeterFactory.instance.set_default(ameter)
+    assert (ameter.eql? Perf::MeterFactory.instance.get)
   end
 
 end
