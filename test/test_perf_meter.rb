@@ -153,8 +153,8 @@ class TestPerfMeter < Test::Unit::TestCase
   end
 
   def test_methods_with_measure
-    Perf::MeterFactory.clear_all!
-    m=Perf::MeterFactory.get
+    Perf::MeterFactory.instance.clear_all!
+    m=Perf::MeterFactory.instance.get
     m.method_meters(PerfTestExample,[:test,:test_np,:test_with_measure],[:static_method]) do
       a=PerfTestExample.new
       a.test(1,2,3)

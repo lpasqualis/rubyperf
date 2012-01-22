@@ -11,11 +11,12 @@ class TestMeterFactory < Test::Unit::TestCase
 
   def setup()
     Perf::MeterFactory.instance.clear_all!
+    Perf::MeterFactory.instance.clear_factory_options!
   end
 
   def teardown()
     Perf::MeterFactory.instance.clear_all!
-    Perf::MeterFactory.instance.set_factory_options(:noop=>false)
+    Perf::MeterFactory.instance.clear_factory_options!
   end
 
   def test_noop
@@ -26,6 +27,28 @@ class TestMeterFactory < Test::Unit::TestCase
       # ...
     end
     assert m1.report_simple.nil?
+  end
+
+  def test_production_meter_factory
+    # If we get the production factory first, the :noop option is set so the first get returns a NoOpMeter
+    m=Perf::ProductionMeterFactory.instance.get
+    assert m.is_a? Perf::NoOpMeter
+
+    # The second get, even with the MeterFactory, still returns a NoOpMeter
+    m=Perf::MeterFactory.instance.get
+    assert m.is_a? Perf::NoOpMeter
+
+    # If we clean everything up...
+    Perf::MeterFactory.instance.clear_all!
+    Perf::MeterFactory.instance.clear_factory_options!
+
+    # And we use MeterFactory as first get, we get a normal meter
+    m=Perf::MeterFactory.instance.get
+    assert m.is_a? Perf::Meter
+
+    # At this point ProductionFactory also gets a normal meter.
+    m=Perf::ProductionMeterFactory.instance.get
+    assert m.is_a? Perf::Meter
   end
 
   def test_meter

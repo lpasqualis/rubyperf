@@ -79,6 +79,12 @@ module Perf
       @factory_options.merge!(options)
     end
 
+    # Clear factory options.
+
+    def clear_factory_options!
+      @factory_options.clear
+    end
+
     # If you use set_new_meters_options, or if you pass options to Perf::MeterFactory.get, you are setting options
     # only for if the meter is created. For this reason you might need to find out if the meter already exist.
 
@@ -114,6 +120,14 @@ module Perf
 
     def clear_all!
       @perf_meters.clear
+    end
+
+    # Used by ProductionMeterFactory to return the instance ensuring that no Perf::Meters will be created if they
+    # do not exist.
+
+    def no_op_instance
+      @factory_options[:noop] = true
+      self
     end
 
   end
