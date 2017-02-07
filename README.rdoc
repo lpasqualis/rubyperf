@@ -30,7 +30,3 @@ DreamBox Learning:
 
 Project home-page git repository:
   https://github.com/lpasqualis/rubyperf
-
-Author's Blog:
-  http://www.lorenzopasqualis.com
-
